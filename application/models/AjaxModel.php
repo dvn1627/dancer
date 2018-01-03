@@ -1222,41 +1222,49 @@ class AjaxModel extends CI_Model{
                 . ' and ex.dancer_id in (select DISTINCT dancer_id from comp_list where comp_id=' . $comp_id . ')';
         $q = $this->db->query($sel);
         $exp = $q->result_array();
-        $sel = 'select l.id, l.points'
+        $sel = 'select l.id, l.points, l.number'
                 . ' from ligs as l, competitions as c'
                 . ' where l.deleted=0 and l.way_id = c.way_id and c.id=' . $comp_id
                 . ' order by number asc';
         $q = $this->db->query($sel);
         $ligs = $q->result_array();
+        $test = [];
         foreach ($exp as $ex) {
+            $points = $ex['points'];
             foreach ($competition as $comp) {
                 if ($ex['dancer_id'] == $comp['dancer_id']) {
-                    $points = $ex['points'] -= $comp['points'];
+                    $points -= $comp['points'];
                 }
             }
             $ex_lig = $ex['lig_id'];
-            if ($points < 0 ) {
+            //while ($points <0 ) {
+            if ($points <0) {
                 foreach ($ligs as $lig_key => $lig_val) {
                     if ($lig_val['id'] == $ex['lig_id']) {
                         if ($lig_val['number'] > 1) {
-                            $ex_lid = $ligs[$lig_key - 1]['id'];
+                            $ex['lig_id'] = $ligs[$lig_key - 1]['id'];
+                            $points += $ligs[$lig_key - 1]['points'];
+                        } else {
+                            $points = 0;
                         }
                     }
                 }
-                $points = 0;
             }
             $upd = 'update experience'
                     . ' set points=' . $points
-                    . ', lig_id=' . $ex_lid
+                    . ', lig_id=' . $ex['lig_id']
                     . ' where id=' . $ex['id'];
+            $this->db->query($upd);
         }
         $upd = 'update comp_list'
                 . ' set points=0'
                 . ' where comp_id=' . $comp_id;
+        $this->db->query($upd);
         $upd = 'update competitions'
                 . ' set status_id = (select id from statuses where status="CLOSE")'
                 . ' where id=' . $comp_id;
-        return $competition;
+        $this->db->query($upd);
+        return true;
     }
 
     public function closeComp($comp_id)

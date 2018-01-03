@@ -639,4 +639,15 @@ class Cabinet extends CI_Controller
             $this->load->view('admin/competitions', $data);
         }
     }
+
+    public function recoverCompetition($comp_id)
+    {
+        if ($this->session->admin != 2){
+            $this->load->view('errors/error_access');
+        }
+        else {
+            $this->AjaxModel->recoverCompetition(2);
+            $this->admincompetition($comp_id);
+        }
+    }
 }

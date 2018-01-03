@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <table class="table table-condensed table-striped" id="reward_table">
                     <tbody>
-                        
+
                     </tbody>
                     <thead>
                         <tr>
@@ -43,6 +43,12 @@
 <a class="btn btn-default" href="../admincompcontacts/<?php echo $comp_id; ?>">Контакты</a>
 <a class="btn btn-success" href="../adddancers/<?php echo $comp_id; ?>">Добавить танцоров</a>
 <button class="btn btn-danger" id="done_but">Завершить конкурс</button>
+<?php
+/// кнопка Откатить конкурс
+if ($status == "DONE") {
+    echo '<a class="btn btn-default" href="../recoverCompetition/' . $comp_id . '">Отменить результаты</a>';
+}
+ ?>
 <h3>Скачать в формате CSV:</h3>
 <?php
  foreach($files as $file){

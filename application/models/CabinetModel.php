@@ -1112,9 +1112,13 @@ class CabinetModel extends CI_Model{
     }
     public function getCompName($comp_id)
     {
-        $q = $this->db->query('select name from competitions where id='.$comp_id);
+        $q = $this->db->query('select c.name, s.status'
+							. ' from competitions c, statuses s '
+							. ' where c.status_id=s.id'
+							. ' and c.id=' . $comp_id);
         $res = $q->result_array();
-        return $res[0]['name'];
+		$return = $res[0]['name'] . ' <small>' . $res[0]['status'] . '</small>';
+        return $return;
     }
 
 	public function htmlAdminArchive()
