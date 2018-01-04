@@ -1,4 +1,27 @@
 <?php $this->load->view('header');?>
+<?php if ($status == "DONE"):?>
+    <!-- Modal -->
+<div id="recoverModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Отменить результаты конкурса</h4>
+      </div>
+      <div class="modal-body">
+        <h3><?php echo $this->CabinetModel->getCompName($comp_id); ?></h3>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-default" href="../recoverCompetition/' . $comp_id . '">ДА</a>
+        <button type="button" class="btn btn-default" data-dismiss="modal">НЕТ</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<?php endif?>
 <div id="rewardmodal" class="modal fade" role="dialog">
     <div class="modal-dialog">
     <!-- Modal content-->
@@ -46,7 +69,7 @@
 <?php
 /// кнопка Откатить конкурс
 if ($status == "DONE") {
-    echo '<a class="btn btn-default" href="../recoverCompetition/' . $comp_id . '">Отменить результаты</a>';
+    echo '<a class="btn btn-default" data-toggle="modal" data-target="#recoverModal" href="#">Отменить результаты</a>';
 }
  ?>
 <h3>Скачать в формате CSV:</h3>
