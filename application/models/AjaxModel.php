@@ -1150,8 +1150,8 @@ class AjaxModel extends CI_Model{
                 . ' from comp_list where comp_id='.$comp_id
                 . ' group by dancer_id');
         $comp_points = $q->result_array();
-        foreach($comp_points as $c){
-            if ($c['point']==0){
+        foreach($comp_points as $c) {
+            if ($c['point'] == 0) {
                 continue;
             }
             $q = $this->db->query('select e.id, e.points, l.points as next_p, l.number, e.create_at, l.days'
@@ -1159,7 +1159,7 @@ class AjaxModel extends CI_Model{
                     . ' where e.dancer_id='.$c['dancer_id']
                     . ' and e.way_id='.$way_id.' and e.lig_id=l.id and e.dancer_id=d.id');
             $res = $q->result();
-            if (count($res)==0){
+            if (count($res) == 0) {
                 $time=date('Y-m-d',time());
                 $ins=$this->db->query('insert into experience (dancer_id, lig_id, points, way_id, create_at)'
                         . ' values ('
@@ -1169,39 +1169,40 @@ class AjaxModel extends CI_Model{
                         . ','.$way_id
                         . ',"'.$time
                         . '")');
-            } else{
+            } else {
                 $prev = strtotime($res[0]->create_at);
-                $del = $prev + $res[0]->days*24*60*60 - time();
-                if ($res[0]->days>0 && $del<0){
+                $del = $prev + $res[0]->days * 24 * 60 * 60 - time();
+                if ($res[0]->days > 0 && $del < 0){
                     $q= $this->db->query('select id '
                             . ' from ligs'
-                            . ' where number='.($res[0]->number+1).' and way_id='.$way_id);
-                    $r=$q->result();
-                    $lig_id=$r[0]->id;
-                    $ins=[
+                            . ' where number=' . ($res[0]->number + 1) . ' and way_id=' . $way_id);
+                    $r = $q->result();
+                    $lig_id = $r[0]->id;
+                    $ins = [
                         'lig_id' => $lig_id,
                         'points' => $res[0]->points
                     ];
-                    $this->db->where('id',$res[0]->id);
-                    $this->db->update('experience',$ins);
-                }else{
-                    $sum=$res[0]->points+$c['point'];
-                    if ($sum<$res[0]->next_p){
-                        $this->db->where('id',$res[0]->id);
-                        $this->db->update('experience',['points'=>$sum]);
-                    } else{
-                        $q= $this->db->query('select id '
+                    $this->db->where('id', $res[0]->id);
+                    $this->db->update('experience', $ins);
+                } else {
+                    $sum = $res[0]->points + $c['point'];
+                    if ($sum < $res[0]->next_p){
+                        $this->db->where('id', $res[0]->id);
+                        $this->db->update('experience', ['points' => $sum]);
+                    } else {
+                        $q = $this->db->query('select id '
                                 . ' from ligs'
-                                . ' where number='.($res[0]->number+1).' and way_id='.$way_id);
-                        $r=$q->result();
-                        $lig_id=$r[0]->id;
-                        $sum = $sum - $res[0]->next_p;
-                        $ins=[
+                                . ' where number=' . ($res[0]->number + 1) . ' and way_id=' . $way_id);
+                        $r = $q->result();
+                        $lig_id = $r[0]->id;
+                        //$sum = $sum - $res[0]->next_p;
+                        $sum = 0;
+                        $ins = [
                             'lig_id' => $lig_id,
                             'points' => $sum
                         ];
-                        $this->db->where('id',$res[0]->id);
-                        $this->db->update('experience',$ins);
+                        $this->db->where('id', $res[0]->id);
+                        $this->db->update('experience', $ins);
                     }
                 }
             }
