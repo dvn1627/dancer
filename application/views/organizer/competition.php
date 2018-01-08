@@ -36,7 +36,11 @@
 <!-- End Modal -->
 <input type="hidden" value="<?php echo $comp_id;?>" id="comp_id">
 <button class="btn btn-info" id="reward_but" data-toggle="modal" data-target="#rewardmodal">Для награждения</button>
-<a class="btn btn-info" href="../orgnumbers/<?php echo $comp_id; ?>">Номера участников</a>
+<?php
+if ($status == "CLOSE") {
+    echo '<a class="btn btn-info" href="../numbers/' . $comp_id . '">Номера участников</a>';
+}
+?>
 <a class="btn btn-default" href="../orgcompcontacts/<?php echo $comp_id; ?>">Контакты</a>
 <button class="btn btn-warning" id="close_but">Остановить регистрацию</button>
 <p id="mess"></p>

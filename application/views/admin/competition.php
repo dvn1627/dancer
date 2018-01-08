@@ -60,7 +60,11 @@
 <?php echo '<h1>'.$this->CabinetModel->getCompName($comp_id).'</h1>'; ?>
 <input type="hidden" id="comp_id" value="<?php echo $comp_id; ?>">
 <button class="btn btn-info" id="reward_but" data-toggle="modal" data-target="#rewardmodal">Для награждения</button>
-<a class="btn btn-info" href="../numbers/<?php echo $comp_id; ?>">Номера участников</a>
+<?php
+if ($status == "CLOSE") {
+    echo '<a class="btn btn-info" href="../numbers/' . $comp_id . '">Номера участников</a>';
+}
+ ?>
 <a class="btn btn-info" href="../comppays/<?php echo $comp_id; ?>">Оплата за конкурс</a>
 <a class="btn btn-warning <?php if($status!='CLOSE') echo ' disabled'; ?>" href="../uploadResults/<?php echo $comp_id; ?>" target="_blank">Распределить места</a>
 <a class="btn btn-default" href="../admincompcontacts/<?php echo $comp_id; ?>">Контакты</a>
