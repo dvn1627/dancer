@@ -654,4 +654,14 @@ class Cabinet extends CI_Controller
             $this->admincompetition($comp_id);
         }
     }
+
+    public function cities()
+    {
+        if ($this->session->admin != 2){
+            $this->load->view('errors/error_access');
+        } else {
+            $regions = $this->CabinetModel->get_regions();
+            $this->load->view('admin/cities', ['regions' => $regions]);
+        }
+    }
 }

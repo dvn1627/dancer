@@ -102,7 +102,7 @@ class CabinetModel extends CI_Model{
 
 	public function getCities($region)
 	{
-		$q=$this->db->query('select id,city from cities where region_id='.$region);
+		$q=$this->db->query('select id,city from cities where region_id='.$region.' and deleted_at is null');
 		return $q->result_array();
 	}
 

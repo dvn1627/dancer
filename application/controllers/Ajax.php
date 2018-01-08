@@ -143,6 +143,12 @@ class Ajax extends CI_Controller {
         echo $this->AjaxModel->htmlStyles($_POST['way']);
     }
 
+	public function showCities()
+    {
+		//echo $_POST['region'];
+        echo $this->AjaxModel->htmlCities($_POST['region']);
+    }
+
     public function selectStyles()
     {
         //echo $_POST['way'];
@@ -448,6 +454,22 @@ class Ajax extends CI_Controller {
 		if ($this->session->id > 0){
 			$user_id = $_POST['id'];
 			echo $this->AjaxModel->deleteUser($user_id);
+		}
+		return false;
+	}
+
+	public function saveCity()
+	{
+		if ($this->session->id > 0){
+			echo $this->AjaxModel->saveCity($_POST['id'], $_POST['name']);
+		}
+		return false;
+	}
+
+	public function deleteCity()
+	{
+		if ($this->session->id > 0){
+			echo $this->AjaxModel->deleteCity($_POST['id']);
 		}
 		return false;
 	}

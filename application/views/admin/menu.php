@@ -32,4 +32,7 @@
     <a href="<?php echo base_url();?>index.php/cabinet/statistic" class="btn btn-default">
         Статистика
     </a>
+    <a href="<?php echo base_url();?>index.php/cabinet/cities" class="btn btn-default">
+        Города
+    </a>
 </div>

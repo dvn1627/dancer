@@ -145,6 +145,29 @@ class AjaxModel extends CI_Model{
         return $html;
     }
 
+    public function htmlCities($region_id)
+    {
+        $data=$this->getCities($region_id);
+        $html="";
+        foreach ($data as $d) {
+            $html.='<tr>';
+            $html.='<td class="hidden">'.$d['id'].'</td>';
+            $html.='<td>'.$d['city'].'</td>';
+            $html.='<td><button class="btn btn-warning btn-sm edit" id="e'.$d['id']
+                    .'" data-toggle="modal" data-target="#editmodal">edit</button> ';
+            $html.='<button class="btn btn-danger btn-sm del" id="d'.$d['id'].'" data-toggle="modal" data-target="#deleteModal">delete</button></td>';
+            $html.='</tr>';
+        }
+        return $html;
+    }
+
+    public function getCities($region_id)
+    {
+        $sel = 'select * from cities where region_id=' . $region_id. '  and deleted_at is null';
+        $q = $this->db->query($sel);
+        return $q->result_array();
+    }
+
     public function selectStyles($way_id){
         $data=$this->getStyles($way_id);
         $html='<option value="0">выберите стиль</option>';
@@ -1895,6 +1918,22 @@ class AjaxModel extends CI_Model{
     {
         $upd = 'update users set deleted_at="' . date('Y-m-d H:i:s', time())
             . '" where id=' . $user_id;
+        $q = $this->db->query($upd);
+        return 0;
+    }
+
+    public function saveCity($id, $name)
+    {
+        $upd = 'update cities set city="' . $name
+            . '" where id=' . $id;
+        $q = $this->db->query($upd);
+        return 0;
+    }
+
+    public function deleteCity($id)
+    {
+        $upd = 'update cities set deleted_at="' . date('Y-m-d H:i:s', time())
+            . '" where id=' . $id;
         $q = $this->db->query($upd);
         return 0;
     }
