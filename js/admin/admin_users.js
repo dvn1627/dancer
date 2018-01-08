@@ -2,6 +2,7 @@
 
 $('#edit_block').hide();
 $('#edit_but').hide();
+$('#delete_but').hide();
 
 $('#edit_but').click(function(){
 	$('#edit_block').show();
@@ -12,7 +13,7 @@ $('#edit_but').click(function(){
 $('#save_but').click(function(){
 	var form=$('#user_form').serialize();
 	$.ajax({
-		url:'../ajax/saveUser',
+		url: baseUrl + 'ajax/saveUser',
 		type:'POST',
 		data:form,
 		success: function(data){
@@ -25,10 +26,11 @@ $('#save_but').click(function(){
 $('#filter_but').click(function(){
 	var form=$('#filter_form').serialize();
 	$.ajax({
-		url:'../ajax/filterUser',
+		url: baseUrl + 'ajax/filterUser',
 		type:'POST',
 		data:form,
 		success: function(data){
+			$('.pagination').hide();
 			var users=JSON.parse(data);
 			var table='';
 			for (var i = 0; i < users.length; i++) {
@@ -49,7 +51,8 @@ function user_click(){
     $('td.pointer').each(function(){
         $(this).click(function(){
                 var id=$(this).parent().find('td.hidden').text();
-                console.log('id=',id);
+                console.log('id=', id);
+				$('#delete_id').val(id);
                 $('#edit_block').hide();
                 user_info(id);
         });
@@ -60,16 +63,18 @@ user_click();
 
 function user_info(id){
 	$.ajax({
-		url:'../ajax/getUserInfo',
+		url: baseUrl + 'ajax/getUserInfo',
 		type:'POST',
 		data:'id='+id,
 		success: function(data){
 			$('#edit_but').show();
+			$('#delete_but').show();
 			var user=JSON.parse(data);
 			$('#user_id').val(user.id);
 			$('#last_name').val(user.last_name);
 			$('#first_name').val(user.first_name);
 			$('#father_name').val(user.father_name);
+			$('#delete_name').html(user.last_name + ' ' +user.first_name + ' ' + user.father_name);
 			$('#phone').val(user.phone);
 			$('#email').val(user.email);
 			$('#password').val(user.password);
@@ -135,9 +140,27 @@ function user_info(id){
 			info+='</ul>';
 			$('#user_info').html(info);
 		}
-	})	
+	})
 }
 
-
+$('#delete_confirm_but').click(function(){
+	$.ajax({
+		url: baseUrl + 'ajax/deleteUser',
+		type:'POST',
+		data:'id='+ $('#delete_id').val(),
+		success: function(data){
+			console.log(data);
+			var text = '';
+			if (data == '0') {
+				var name = $('#delete_name').text();
+				text = '<p class="alert alert-success alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Пользователь ' + name + ' удалён</p>';
+			} else {
+				text = '<p class="alert alert-danger alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>ОШИБКА:</strong> ' + data + '</p>';
+			}
+			$('#success').remove();
+			$('main').prepend(text);
+		}
+	});
+});
 
 })})(jQuery)

@@ -509,10 +509,12 @@ class Cabinet extends CI_Controller
                 $comp_list=$this->AjaxModel->AdminCompList($comp_id, 'admin');
                 $list = $this->AjaxModel->getAdminCompList($comp_id);
                 $files = $this->AjaxModel->getCSVlist($list, $comp_id);
+                $status = $this->CabinetModel->getCompStatus($comp_id);
                 $data=[
                     'comp_id'=>$comp_id,
                     'comp_list'=>$comp_list,
                     'files'=>$files,
+                    'status'=> $status,
                         ];
                 $this->load->view('organizer/competition',$data);
             }

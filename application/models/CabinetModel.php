@@ -7,7 +7,10 @@ class CabinetModel extends CI_Model{
 	}
 
         public function getUsers($next){
-		$query = $this->db->query('select * from users LIMIT '.$next.',20');
+		$sel = 'select * from users'
+		 	. ' where deleted_at is null'
+			. ' LIMIT '.$next.',20';
+		$query = $this->db->query($sel);
 		$users=$query->result_array();
 		return $users;
 	}
@@ -302,7 +305,7 @@ class CabinetModel extends CI_Model{
         $q = $this->db->query('select u.first_name, u.last_name, u.phone, u.email, u.dancer,'
                 . ' d.id, d.birthdate'
                 . ' from users u, dancers d'
-                . ' where u.id=d.user_id and d.trainer_id='
+                . ' where u.deleted_at is null and u.id=d.user_id and d.trainer_id='
                 . '(select id from trainers where user_id='.$trainer_id.')');
         $html='';
         foreach ($q->result() as $r)
@@ -341,7 +344,7 @@ class CabinetModel extends CI_Model{
         $q = $this->db->query('select u.first_name, u.last_name, u.phone, u.email, u.dancer,'
                 . ' d.id, d.birthdate'
                 . ' from users u, dancers d'
-                . ' where u.id=d.user_id and d.trainer_id='
+                . ' where u.deleted_at is null and u.id=d.user_id and d.trainer_id='
                 . '(select id from trainers where user_id='.$trainer_id.')');
         $html='';
         foreach ($q->result() as $r)
@@ -551,17 +554,18 @@ class CabinetModel extends CI_Model{
         if ($id>0 && $role == 'trainer'){
             $select='select u.last_name, u.first_name, d.birthdate, d.id'
                     . ' from users u, dancers d'
-                    . ' where d.user_id=u.id and trainer_id='.$id;
+                    . ' where u.deleted_at is null and u.dancer=2 and d.user_id=u.id and trainer_id='.$id
+					. ' and u.dancer=2';
             } else{
             if ($role == 'trainer'){
                 $select='select u.last_name, u.first_name, d.birthdate, d.id'
                         . ' from users u, dancers d'
-                        . ' where d.user_id=u.id and trainer_id=(select id from trainers where user_id='.$this->session->id.')';
+                        . ' where u.deleted_at is null and u.dancer=2 and d.user_id=u.id and trainer_id=(select id from trainers where user_id='.$this->session->id.')';
             }
             if ($role == 'cluber'){
                 $select='select u.last_name, u.first_name, d.birthdate, d.id'
                         . ' from users u, dancers d, trainers t'
-                        . ' where d.user_id=u.id and d.trainer_id=t.id and'
+                        . ' where u.deleted_at is null and u.dancer=2 and d.user_id=u.id and d.trainer_id=t.id and'
                         . ' club_id=(select id from clubers where user_id='.$this->session->id.')';
                 }
         }
@@ -1047,7 +1051,7 @@ class CabinetModel extends CI_Model{
         $q = $this->db->query('select cl.id, cl.title, ci.city,'
                 . ' u.last_name, u.first_name, u.father_name'
                 . ' from clubers cl, cities ci, users u'
-                . ' where cl.city_id=ci.id and cl.user_id=u.id');
+                . ' where u.deleted_at is null and u.cluber=2 and cl.city_id=ci.id and cl.user_id=u.id');
         $row = $q->result_array();
         $html='<option value="0"> Выберите клуб</option>';
         foreach ($row as $r){

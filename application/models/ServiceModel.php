@@ -4,7 +4,7 @@ class ServiceModel extends CI_Model{
 		$this->load->database();
 		$this->load->dbforge();
 	}
-    
+
 	function CreateTables(){
 		/*
 		$this->dbforge->add_field('id');
@@ -56,6 +56,10 @@ class ServiceModel extends CI_Model{
 			'admin'=> array(
 				'type' => 'tinyint',
 				'default'=>0
+				),
+			'deleted_at'=> array(
+				'type' => 'DateTime',
+				'default'=> null
 				),
 		);
 		$this->dbforge->add_field($fields);
@@ -745,7 +749,7 @@ class ServiceModel extends CI_Model{
                 $west = $row->id;
             }
         }
-        
+
         $styles='insert into styles (style,way_id,dancers_count) values'
                 . '("Raqs el Sharqi",'.$east.',0),'
                 . '("Эстрадная Песня",'.$east.',1),'
@@ -820,7 +824,7 @@ class ServiceModel extends CI_Model{
                    . '("PRE"),'
                    . '("CLOSE"),'
                    . '("DONE")';
-        $this->db->query($statuses);          
+        $this->db->query($statuses);
         $age='insert into cat_age (name,min_age,max_age,dancers_count) values'
                 . '("Мини-беби",2,5,0),'
                 . '("Беби",6,7,0),'

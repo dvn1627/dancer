@@ -25,7 +25,7 @@ class AuthModel extends CI_Model{
 
 	function login($email, $password)
 	{
-		$query=$this->db->query('select * from users where email=? and password=?',array($email,$password));
+		$query=$this->db->query('select * from users where email=? and password=? and deleted_at is null',array($email,$password));
 		if (count($query->result())>0){
 			$user=array(
 				'id'=>$query->result()[0]->id,
@@ -42,7 +42,7 @@ class AuthModel extends CI_Model{
 		}
 		else return false;
 	}
-        
+
     public function addorganizer($id, $city)
     {
         $this->db->insert('organizers', ['user_id' => $id, 'city_id' => $city]);

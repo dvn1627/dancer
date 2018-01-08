@@ -1,4 +1,28 @@
 <?php $this->load->view('header');?>
+
+<!-- Modal delete-->
+<div id="deleteModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Удалить пользователя</h4>
+      </div>
+      <div class="modal-body">
+        <h4 id="delete_name"></h4>
+		<input type="hidden" value="" id="delete_id">
+      </div>
+      <div class="modal-footer">
+		<button type="button" class="btn btn-danger" data-dismiss="modal" id="delete_confirm_but">ДА</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">НЕТ</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- end delete modal -->
+
 <h1 class="h4 text-success">Администрирование пользователей</h1>
 	<?php $this->load->view('admin/menu');?>
 	<div class="row">
@@ -65,7 +89,7 @@
 		<div class="col-md-4">
 			<table class="table table-striped" id="user_table">
 			  <tbody>
-				<?php 
+				<?php
 				foreach ($users as $user) {
 					echo '<tr>';
 					echo '<td class="hidden">'.$user['id'].'</td>';
@@ -83,6 +107,8 @@
 		<div class="col-md-3">
 			<form id="user_form">
 				<input type="submit" id="edit_but" class='btn btn-warning' value="модерация">
+				<br><br>
+				<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" id="delete_but">УДАЛИТЬ</button>
 				<div id="edit_block">
 					<input type="hidden" id="user_id" name="id" class="form-control">
 					<input type="text" id="last_name" name="last_name" placeholder="фамилия..." class="form-control">
@@ -91,7 +117,7 @@
 					<input type="text" id="phone" name="phone" placeholder="телефон..." class="form-control">
 					<input type="text" id="password" name="password" placeholder="пароль..." class="form-control">
 					<input type="text" id="email" name="email" placeholder="e-mail.." class="form-control">
-					
+
 					<h4>Администратор</h4>
 					<div class="radio">
 						<label>
@@ -113,7 +139,7 @@
 							<input type="radio" name="admin" value="3">блокирован
 						</label>
 					</div>
-					
+
 					<h4>Организатор</h4>
 					<div class="radio">
 						<label>
@@ -205,16 +231,20 @@
 					<input type="submit" id="save_but" class='btn btn-success'  value="сохранить">
 				</div>
 			</form>
-			
+
 		</div>
-			
+
 	</div>
-<?php 
+<?php
 
 $this->load->view('footer'); ?>
-<script src="<?php 
-$str = base_url();
-if ($page == 0) $str.='/js/admin/admin_users.js';
-else $str.='/js/admin/admin_users_page.js';
-echo $str;
-?>"></script>
+<script>
+<?php
+if ($page == 0) {
+	echo "var baseUrl = '../'";
+} else {
+	echo "var baseUrl = '../../'";
+}
+ ?>
+</script>
+<script src="/js/admin/admin_users.js"></script>

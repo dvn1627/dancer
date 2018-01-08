@@ -14,35 +14,6 @@ class AjaxModel extends CI_Model{
     }
 
     function saveUser($user){
-            /*$data= array(
-                    'first_name' => $user['first_name'],
-                    'last_name' => $user['last_name'],
-                    'father_name' => $user['father_name'],
-                    'email' => $user['email'],
-                    'password' => $user['password'],
-                    'phone' => $user['phone'],
-                    'dancer' => $user['dancer'],
-                    'trainer' => $user['trainer'],
-                    'cluber' => $user['cluber'],
-                    'organizer' => $user['organizer'],
-                    'admin' => $user['admin'],
-                    'id' => $user['id'],
-                    );
-            $update='update users set
-            first_name=?,
-            last_name=?,
-            father_name=?,
-            email=?,
-            password=?,
-            phone=?,
-            dancer=?,
-            trainer=?,
-            cluber=?,
-            organizer=?,
-            admin=?
-            where id=?
-            ';
-            return $this->db->query($update,$data);*/
         $this->db->where('id', $user['id']);
         return $this->db->update('users', $user);
     }
@@ -50,35 +21,38 @@ class AjaxModel extends CI_Model{
     public function filterUsers($filter)
     {
             $one=true;
-            $select='select * from users where';
+            $select='select * from users where deleted_at is null ';
             if ($filter['filter_admin']>-1){
-                    $select.=' admin='.$filter['filter_admin'];
+                    $select.='and admin='.$filter['filter_admin'];
                     $one=false;
             }
             if ($filter['filter_organizer']>-1){
-                    $select.=($one==false) ? ' and':'';
-                    $select.=' organizer='.$filter['filter_organizer'];
+                    //$select.=($one==false) ? ' and':'';
+                    $select.='and organizer='.$filter['filter_organizer'];
                     $one=false;
             }
             if ($filter['filter_cluber']>-1){
-                    $select.=($one==false) ? ' and':'';
-                    $select.=' cluber='.$filter['filter_cluber'];
+                    //$select.=($one==false) ? ' and':'';
+                    $select.='and cluber='.$filter['filter_cluber'];
                     $one=false;
             }
             if ($filter['filter_trainer']>-1){
-                    $select.=($one==false) ? ' and':'';
-                    $select.=' trainer='.$filter['filter_trainer'];
+                    //$select.=($one==false) ? ' and':'';
+                    $select.='and trainer='.$filter['filter_trainer'];
                     $one=false;
             }
             if ($filter['filter_dancer']>-1){
-                    $select.=($one==false) ? ' and':'';
-                    $select.=' dancer='.$filter['filter_dancer'];
+                    //$select.=($one==false) ? ' and':'';
+                    $select.='and dancer='.$filter['filter_dancer'];
                     $one=false;
             }
-
+            if ($one == true and strlen($filter['filter_text']) == 0) {
+                return false;
+            }
             if (strlen($filter['filter_text'])>0){
                     $txt=$filter['filter_text'];
-                    $select.=($one==false) ? ' and':'';
+                    //$select.=($one==false) ? ' and':'';
+                    $select.= ' and ';
                     $select.=" ( first_name LIKE '%".$txt."%'";
                     $select.=" or last_name LIKE '%".$txt."%'";
                     $select.=" or father_name LIKE '%".$txt."%'";
@@ -417,9 +391,6 @@ class AjaxModel extends CI_Model{
 
     public function addDancer($data, $trainer_id)
     {
-        /*$q = $this->db->query('select id from users where email="'.$data['email'].'"');
-        $r = $q->result_array();
-        if (count($r)>0) return false;*/
         if (trim($data['birthdate'])=='0000-00-00'){
             return false;
         }
@@ -1493,7 +1464,7 @@ class AjaxModel extends CI_Model{
     {
         $q = $this->db->query('select u.first_name, u.last_name, u.father_name, t.id'
                 . ' from trainers t, users u'
-                . ' where t.user_id=u.id and t.club_id='.$club_id);
+                . ' where u.deleted_at is null and u.trainer=2 and t.user_id=u.id and t.club_id='.$club_id);
         $row = $q->result_array();
         $html='<option value="0"> Выберите тренера</option>';
         foreach ($row as $r){
@@ -1507,7 +1478,7 @@ class AjaxModel extends CI_Model{
 
         $q = $this->db->query('select u.first_name, u.last_name, u.father_name, d.id, d.birthdate'
                 . ' from users u, dancers d'
-                . ' where d.user_id=u.id and  d.trainer_id='.$trainer_id);
+                . ' where u.deleted_at is null and u.dancer=2 and d.user_id=u.id and  d.trainer_id='.$trainer_id);
         $row = $q->result_array();
         $html='';
         foreach ($row as $r){
@@ -1681,8 +1652,8 @@ class AjaxModel extends CI_Model{
                     . ' and e.dancer_id='.$id;
                 break;
         }
-        $res = $q->result_array();
         $q = $this->db->query($sel);
+        $res = $q->result_array();
         return $res;
     }
 
@@ -1918,5 +1889,13 @@ class AjaxModel extends CI_Model{
         $q = $this->db->query($sel);
         $res = $q->result_array();
         return $res;
+    }
+
+    public function deleteUser($user_id)
+    {
+        $upd = 'update users set deleted_at="' . date('Y-m-d H:i:s', time())
+            . '" where id=' . $user_id;
+        $q = $this->db->query($upd);
+        return 0;
     }
 }

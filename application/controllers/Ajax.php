@@ -442,4 +442,13 @@ class Ajax extends CI_Controller {
         echo "TEST <br>";
 
     }
+
+	public function deleteUser()
+	{
+		if ($this->session->admin != 2){
+			return false;
+		}
+		$user_id = $_POST['id'];
+		echo $this->AjaxModel->deleteUser($user_id);
+	}
 }
