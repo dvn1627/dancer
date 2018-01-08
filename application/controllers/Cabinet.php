@@ -638,7 +638,7 @@ class Cabinet extends CI_Controller
                 'competitions'=>$competitions,
                 'statuses'=>$statuses,
             );
-            $this->load->view('admin/competitions', $data);
+            $this->load->view('admin/archive', $data);
         }
     }
 

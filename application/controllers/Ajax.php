@@ -269,6 +269,11 @@ class Ajax extends CI_Controller {
         echo $this->CabinetModel->htmlCompetitions($_POST['role']);
     }
 
+	public function showArchiveCompetitions()
+    {
+        echo $this->CabinetModel->htmlAdminArchive();
+    }
+
     public function compInfo()
     {
         $res = $this->AjaxModel->compInfo($_POST['id']);
