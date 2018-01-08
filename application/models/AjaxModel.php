@@ -1684,8 +1684,8 @@ class AjaxModel extends CI_Model{
                     . ' and e.dancer_id='.$id;
                 break;
         }
-        $q = $this->db->query($sel);
         $res = $q->result_array();
+        $q = $this->db->query($sel);
         return $res;
     }
 
@@ -1697,5 +1697,229 @@ class AjaxModel extends CI_Model{
         }
         $html.='</ul>';
         return $html;
+    }
+
+    public function getTrainerListForCsv($trainer_id, $comp_id)
+    {
+        $sel = 'select cl.print_number, u.last_name, u.first_name, cl.lig_id, cl.count_id,'
+            . ' d.birthdate, cl.points, s.style, b.name as bell_name, t.id as trainer_id, '
+            . ' cl.comp_id, ca.name as cat_age, cc.name as count_name, b.type as bell_type,'
+            . ' (select name from ligs where ligs.id=cl.lig_id) as comp_lig,'
+            . ' (select ligs.name from ligs, experience, competitions '
+                    . ' where ligs.id=experience.lig_id and experience.dancer_id=d.id'
+                    . ' and competitions.way_id=experience.way_id and competitions.id=cl.comp_id) as dancer_lig'
+            . ' from comp_list cl, dancers d, users u, trainers t, styles s,'
+            . ' cat_age ca, cat_count cc, bellydance b'
+            . ' where cl.dancer_id=d.id and d.user_id=u.id'
+            . ' and d.trainer_id=t.id and t.id=' . $trainer_id
+            . ' and cl.comp_id=' . $comp_id
+            . ' and cl.style_id=s.id'
+            . ' and cl.age_id=ca.id and cl.count_id=cc.id and d.bell_id=b.id';
+        $q = $this->db->query($sel);
+        $list = $q->result_array();
+        return $this->addPaysForCsv($list);
+    }
+
+    public function addPaysForCsv($list)
+    {
+        for ($i=0; $i < count($list); $i++) {
+            $sel = 'select pay_not, pay_iude, pay_other'
+                .' from pays'
+                . " where comp_id={$list[$i]['comp_id']} and count_id={$list[$i]['count_id']} and lig_id={$list[$i]['lig_id']}";
+            $q = $this->db->query($sel);
+            $res = $q->result_array();
+            if ($list[$i]['bell_type'] == 1) {
+                $list[$i]['pay'] = $res[0]['pay_iude'];
+            } elseif ($list[$i]['bell_type'] == 1) {
+                $list[$i]['pay'] = $res[0]['pay_other'];
+            } else {
+                $list[$i]['pay'] = $res[0]['pay_not'];
+            }
+        }
+        return $list;
+    }
+
+    public function getCluberListForCsv($cluber_id, $comp_id)
+    {
+        $sel = 'select cl.print_number, u.last_name, u.first_name,'
+            . ' d.birthdate, cl.points, s.style, b.name as bell_name, t.id as trainer_id, clubers.id as club_id,'
+            . ' cl.comp_id, cl.count_id, cl.lig_id, b.type as bell_type, ca.name as cat_age, cc.name as count_name,'
+            . ' (select name from ligs where ligs.id=cl.lig_id) as comp_lig,'
+            . ' (select ligs.name from ligs, experience, competitions '
+                    . ' where ligs.id=experience.lig_id and experience.dancer_id=d.id'
+                    . ' and competitions.way_id=experience.way_id and competitions.id=cl.comp_id) as dancer_lig'
+            . ' from comp_list cl, dancers d, users u, trainers t, styles s,'
+            . ' cat_age ca, cat_count cc, bellydance b, clubers'
+            . ' where cl.dancer_id=d.id and d.user_id=u.id'
+            . ' and d.trainer_id=t.id and t.club_id=clubers.id and clubers.id=' . $cluber_id
+            . ' and cl.comp_id=' . $comp_id
+            . ' and cl.style_id=s.id'
+            . ' and cl.age_id=ca.id and cl.count_id=cc.id and d.bell_id=b.id';
+        $q = $this->db->query($sel);
+        $list = $q->result_array();
+        return $this->addPaysForCsv($list);
+    }
+
+    function getCompInfoForCsv($comp_id)
+    {
+        $sel = 'select co.name as comp_name, ci.city, co.comment'
+            . ' from competitions co, cities ci'
+            . ' where co.city_id=ci.id and co.id=' . $comp_id;
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        $info = $res[0];
+        $sel = 'select DISTINCT dancer_id from comp_list where comp_id=' . $comp_id;
+        $q = $this->db->query($sel);
+        $info['count'] = count($q->result_array());
+        return $info;
+    }
+
+    function getTrainerInfoForCsv($trainer_id, $comp_id)
+    {
+        $info = [];
+        $sel = 'select u.first_name, u.last_name, u.email, u.phone'
+            . ' from users u, trainers t'
+            . ' where u.id=t.user_id and t.id=' . $trainer_id;
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        $info = $res[0];
+        $sel = 'select DISTINCT cl.dancer_id'
+            . ' from comp_list cl, dancers d, trainers t'
+            . ' where cl.dancer_id=d.id and d.trainer_id=t.id'
+            . ' and cl.comp_id=' . $comp_id . ' and t.id=' . $trainer_id;
+        $q = $this->db->query($sel);
+        $info['count'] = count($q->result_array());
+        return $info;
+    }
+
+    function getCluberInfoForCsv($clubers_id, $comp_id)
+    {
+        $info = [];
+        $sel = 'select u.first_name, u.last_name, u.email, u.phone, ci.city, clubers.title, clubers.id'
+            . ' from users u, clubers, cities ci'
+            . ' where u.id=clubers.user_id and ci.id=clubers.city_id and clubers.id=' . $clubers_id;
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        $info = $res[0];
+        $sel = 'select DISTINCT cl.dancer_id'
+            . ' from comp_list cl, dancers d, trainers t'
+            . ' where cl.dancer_id=d.id and d.trainer_id=t.id'
+            . ' and cl.comp_id=' . $comp_id . ' and t.club_id=' . $clubers_id;
+        $q = $this->db->query($sel);
+        $info['count'] = count($q->result_array());
+        return $info;
+    }
+
+    public function makeTrainerCSV($trainer_id, $comp_id)
+    {
+        $text = '';
+        $comp_info = $this->getCompInfoForCsv($comp_id);
+        $text .= 'Данные конкурса (';
+        $text .= $comp_info['comp_name'] . ', ';
+        $text .= $comp_info['city'] . ', ';
+        $text .= $comp_info['comment'] . ")\r\n";
+        $t_i = $this->getTrainerInfoForCsv($trainer_id, $comp_id);
+        $text .= 'Тренер ';
+        $text .= $t_i['last_name'] . ' ' . $t_i['first_name'] . "\r\n";
+        $text .= 'Телефон тренера ' . $t_i['phone'] . "\r\n";
+        $text .= 'Почта тренера ' . $t_i['email'] . "\r\n";
+        $text .= 'Кол-во участников ' . $t_i['count'] . "\r\n";
+        $dancers = $this->getTrainerListForCsv($trainer_id, $comp_id);
+        $text .= $this->tableForCSV($dancers);
+        return $text;
+    }
+
+    public function makeCluberCSV($cluber_id, $comp_id)
+    {
+        $text = '';
+        $comp_info = $this->getCompInfoForCsv($comp_id);
+        $text .= 'Данные конкурса (';
+        $text .= $comp_info['comp_name'] . ', ';
+        $text .= $comp_info['city'] . ', ';
+        $text .= $comp_info['comment'] . ")\r\n";
+        $c_i = $this->getCluberInfoForCsv($cluber_id, $comp_id);
+        $text .= $c_i['city'] . ', ' . $c_i['title'] . "\r\n";
+        $text .= 'Руководитель ' . $c_i['last_name'] . ' ' . $c_i['first_name'] . "\r\n";
+        $text .= 'Кол-во участников ' . $c_i['count'] . "\r\n";
+        $dancers = $this->getCluberListForCsv($cluber_id, $comp_id);
+        if (count($dancers) == 0) return false;
+        $text .= $this->tableForCSV($dancers);
+        return $text;
+    }
+
+    public function tableForCSV($dancers)
+    {
+        $text = "№ участника (печать);Фамилия, Имя Танцора;Год рождения;Лига танцора (реальная);Баллы;Стиль;Возраст;Кол-во;Лига участия;Организация;Взнос \r\n";
+        foreach ($dancers as $d) {
+            $text .= $d['print_number'] . ";";
+            $text .= $d['last_name'] . ' ' . $d['first_name'] . ";";
+            $text .= substr($d['birthdate'], 0, 4) . ";";
+            $text .= $d['dancer_lig'] . ";";
+            $text .= $d['points'] . ";";
+            $text .= $d['style'] . ";";
+            $text .= $d['cat_age'] . ";";
+            $text .= $d['count_name'] . ";";
+            $text .= $d['comp_lig'] . ";";
+            $text .= $d['bell_name'] . ";";
+            $text .= $d['pay'];
+            $text .= "\r\n";
+        }
+        return $text;
+    }
+
+    public function genTrainerCsvFiles($comp_id)
+    {
+        $comp_info = $this->getCompInfoForCsv($comp_id);
+        $trainer_id = $this->getTrainerId($this->session->id);
+        $html = $this->makeTrainerCSV($trainer_id, $comp_id);
+        $file = [];
+        $file['name'] = 'Конкурс ' . $comp_info['comp_name'];
+        $name = 'list_' . $this->session->id . '_' . $comp_id;
+        $file['file'] = 'csv/' . $name . '.csv';
+        $h = fopen($file['file'], "w");
+        fwrite($h, iconv('UTF-8', 'Windows-1251', $html));
+        fclose($h);
+        return $file;
+    }
+
+    public function genCluberCsvFiles($comp_id)
+    {
+        $cluber_id = $this->getClubId($this->session->id);
+        $club_info = $this->getCluberInfoForCsv($cluber_id, $comp_id);
+        $comp_info = $this->getCompInfoForCsv($comp_id);
+        $files = [];
+        $html = $this->makeCluberCSV($cluber_id, $comp_id);
+        if (!$html) return $files;
+        $i = 0;
+        $files[$i]['name'] = 'Руководитель ' . $club_info['last_name'] . ' ' . $club_info['first_name'] . ' Конкурс ' . $comp_info['comp_name'];
+        $name =  'list_'.$this->session->id.'_'.$comp_id;
+        $files[$i]['file'] = 'csv/' . $name . '.csv';
+        $h = fopen($files[$i]['file'], "w");
+        fwrite($h, iconv('UTF-8','Windows-1251', $html));
+        fclose($h);
+        $trainers = $this->getTrainersComp($comp_id, $cluber_id);
+        foreach ($trainers as $trainer) {
+            $i++;
+            $files[$i]['name'] = 'Тренер ' . $trainer['last_name'] . ' Конкурс №' . $comp_id;
+            $name =  'list_'.$this->session->id . '_' . $trainer['id'] . '_' . $comp_id;
+            $files[$i]['file'] = 'csv/' . $name . '.csv';
+            $html = $this->makeTrainerCSV($trainer['id'], $comp_id);
+            $h = fopen($files[$i]['file'], "w");
+            fwrite($h, iconv('UTF-8','Windows-1251', $html));
+            fclose($h);
+        }
+        return $files;
+    }
+
+    public function getTrainersComp($comp_id, $club_id)
+    {
+        $sel = 'select DISTINCT u.first_name, u.last_name, t.id'
+            . ' from users u, trainers t, comp_list cl, dancers d'
+            . ' where cl.dancer_id=d.id and d.trainer_id=t.id and t.user_id=u.id'
+            . ' and cl.comp_id=' . $comp_id
+            . ' and t.club_id=' . $club_id;
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        return $res;
     }
 }

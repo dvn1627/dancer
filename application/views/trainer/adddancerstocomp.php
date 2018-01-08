@@ -2,20 +2,20 @@
 <?php echo '<h1>'.$this->CabinetModel->getCompName($comp_id).'</h1>'; ?>
 <h3>Скачать в формате CSV:</h3>
 <?php
- foreach($files as $file){
+ //foreach($files as $file){
      echo '<a href="'.base_url().$file['file'].'" class="btn btn-link">'.$file['name'].'</a><br>';
- }
+ //}
 ?>
 <div class="row">
 <form method="POST" action="..\..\cabinet\compreglist">
     <input type="hidden" name="comp_id" id="comp_id" value="<?php echo $comp_id;?>">
-    <div class="col-md-1">
+    <div class="col-md-2">
         <button class="btn btn-success">
             Добавить
         </button>
     </div>
     <div class="col-md-3">
-        
+
             <table>
                 <tbody>
                     <?php echo $dancers; ?>
