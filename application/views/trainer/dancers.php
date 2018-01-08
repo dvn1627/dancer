@@ -1,4 +1,28 @@
 <?php $this->load->view('header');?>
+
+<!-- Modal delete-->
+<div id="deleteModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Удалить пользователя</h4>
+      </div>
+      <div class="modal-body">
+        <h4 id="delete_name"></h4>
+		<input type="hidden" value="" id="delete_id">
+      </div>
+      <div class="modal-footer">
+		<button type="button" class="btn btn-danger" data-dismiss="modal" id="delete_confirm_but">ДА</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">НЕТ</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- end delete modal -->
+
 <div id="editmodal" class="modal fade" role="dialog">
     <div class="modal-dialog">
     <!-- Modal content-->

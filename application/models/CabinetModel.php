@@ -303,7 +303,7 @@ class CabinetModel extends CI_Model{
 
     public function htmlTrainerDancers($trainer_id) {
         $q = $this->db->query('select u.first_name, u.last_name, u.phone, u.email, u.dancer,'
-                . ' d.id, d.birthdate'
+                . ' d.id, d.birthdate, d.user_id'
                 . ' from users u, dancers d'
                 . ' where u.deleted_at is null and u.id=d.user_id and d.trainer_id='
                 . '(select id from trainers where user_id='.$trainer_id.')');
@@ -328,13 +328,15 @@ class CabinetModel extends CI_Model{
                     .'" data-toggle="modal" data-target="#editmodal">edit</button> ';
             $html.='<a href="../cabinet/experience/'.$r->id.'" class="btn btn-default btn-sm">опыт</a>';
             if ($r->dancer != 2 ){
-                $html.='<button class="btn btn-success btn-sm activate" id="a'.
+                $html.=' <button class="btn btn-success btn-sm activate" id="a'.
                         $r->id.'">activate</button></td>';
             }
             if ($r->dancer == 1 ||  $r->dancer == 2){
-                $html.='<button class="btn btn-danger btn-sm deactivate" id="d'.
-                        $r->id.'">delactivate</button></td>';
+                $html.=' <button class="btn btn-warning btn-sm deactivate" id="d'.
+                        $r->id.'">delactivate</button>';
             }
+			$html.=' <button class="btn btn-danger btn-sm del_but"  data-toggle="modal" data-target="#deleteModal" >DELETE</button><input class="hidden" value="'.$r->user_id.'" name="user_id"></td>';
+			//$html.=' <button class="btn btn-danger btn-sm del_but">DELETE</button><input class="hidden" value="'.$r->user_id.'" name="user_id"></td>';
             $html .= '</tr>';
         }
         return $html;
@@ -342,7 +344,7 @@ class CabinetModel extends CI_Model{
 
     public function htmlTrainerDancers2($trainer_id) {
         $q = $this->db->query('select u.first_name, u.last_name, u.phone, u.email, u.dancer,'
-                . ' d.id, d.birthdate'
+                . ' d.id, d.birthdate, d.user_id'
                 . ' from users u, dancers d'
                 . ' where u.deleted_at is null and u.id=d.user_id and d.trainer_id='
                 . '(select id from trainers where user_id='.$trainer_id.')');
@@ -367,13 +369,14 @@ class CabinetModel extends CI_Model{
                     .'" data-toggle="modal" data-target="#editmodal">edit</button> ';
             $html.='<a href="../experience/'.$r->id.'" class="btn btn-default btn-sm">опыт</a>';
             if ($r->dancer != 2 ){
-                $html.='<button class="btn btn-success btn-sm activate" id="a'.
+                $html.=' <button class="btn btn-success btn-sm activate" id="a'.
                         $r->id.'">activate</button></td>';
             }
             if ($r->dancer == 1 ||  $r->dancer == 2){
-                $html.='<button class="btn btn-danger btn-sm deactivate" id="d'.
-                        $r->id.'">delactivate</button></td>';
+                $html.=' <button class="btn btn-warning btn-sm deactivate" id="d'.
+                        $r->id.'">delactivate</button> ';
             }
+			$html.=' <button class="btn btn-danger btn-sm del_but"  data-toggle="modal" data-target="#deleteModal" >DELETE</button><input class="hidden" value="'.$r->user_id.'" name="user_id"></td>';
             $html .= '</tr>';
         }
         return $html;

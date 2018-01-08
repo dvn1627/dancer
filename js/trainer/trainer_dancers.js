@@ -34,7 +34,7 @@ $('#new_but').click(function(){
 });
 
 function addClick(){
-    
+
     $('.info').each(function(){//кнопка информация
 	$(this).click(function(){
             var id=$(this).attr('id').substr(1);
@@ -84,7 +84,7 @@ function addClick(){
                     $('#e_id').val(modal.id);
                     $('#e_user_id').val(modal.user_id);
                     //$('#e_status option').removeAttr('selected');
-                    
+
                     $('#e_bell option').each(function(){
                         if ($(this).val()==modal.bell_id){
                             $(this).attr('selected','selected');
@@ -122,6 +122,14 @@ function addClick(){
             });
 	});
     });
+    $('button.del_but').each(function() {
+        $(this).click(function() {
+            var name = $(this).parent().parent().find('td:nth-child(2)').text();
+            $('#delete_id').val($(this).next().val());
+            $('#delete_name').text(name);
+        });
+    });
+
 }
 
 show();
@@ -155,13 +163,31 @@ $('#insert_but').click(function(){
             data:data,
             success: function(data){
                 show();
-                console.log(data);
             }
         });
     } else{
         return false;
     }
-    
+});
+
+$('#delete_confirm_but').click(function(){
+	$.ajax({
+		url: '../ajax/deleteUser',
+		type:'POST',
+		data:'id='+ $('#delete_id').val(),
+		success: function(data){
+			var text = '';
+			if (data == '0') {
+				var name = $('#delete_name').text();
+				text = '<p class="alert alert-success alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Пользователь ' + name + ' удалён</p>';
+			} else {
+				text = '<p class="alert alert-danger alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>ОШИБКА:</strong> ' + data + '</p>';
+			}
+			$('#success').remove();
+            show();
+			$('main').prepend(text);
+		}
+	});
 });
 
 })})(jQuery)
