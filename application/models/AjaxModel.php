@@ -1017,72 +1017,69 @@ class AjaxModel extends CI_Model{
     public function uploadResult($file, $comp_id)
     {
         $data=[];
-        $handle = fopen("csv/".$file, "r");
+        $handle = fopen("csv/" . $file, "r");
         $first = true;
         while($str = fgets($handle)){
             if ($first == true){
                 $first = false;
             } else{
-                $res = explode(";",iconv('Windows-1251','UTF-8',$str));
-                $b = trim($res[5]);
-                $b = substr($b, 6, 4).'-'.substr($b, 3, 2).'-'.substr($b, 0, 2);
-                $c = $this->delsl(trim($res[7]));
-                $data[] = [
-                    'first_name'=>trim($res[0]),
-                    'last_name'=>trim($res[1]),
-                    'birthdate'=> $b,
-                    'club'=>$c,
-                    'trainer'=>trim($res[8]),
-                    'lig'=>trim($res[11]),
-                    'style'=>trim($res[12]),
-                    'count_name'=>trim($res[13]),
-                    'place'=>trim($res[16]),
-                ];
+                $res = explode(";", iconv('Windows-1251', 'UTF-8', $str));
+                /*
+                new     old
+                1[2]    0 = first_name
+                1[1]    1 = last_name
+                6       5 = birthdate
+                3       7 = club
+                5       8 = trainer
+                11      11= lig
+                8       12= style
+                10      13= count_name
+                15      16= place
+                */
+                $dancer = trim($res[1]);
+                if (trim($res[0]) == 'ИТОГО:') {
+                    $data[] = false;
+                } else {
+                    $data[] = [
+                        'first_name' => mb_substr($dancer, mb_strpos($dancer, ' ') + 1),
+                        'last_name' => mb_substr($dancer, 0, mb_strpos($dancer, ' ')),
+                        'birthdate' => trim($res[6]),
+                        'club' => $this->delsl(trim($res[3])),
+                        'lig' => trim($res[11]),
+                        'style' => trim($res[8]),
+                        'count_name' => trim($res[10]),
+                        'place' => trim($res[15]),
+                        'trainer' => trim($res[5]),
+                    ];
+                }
             }
 
         }
         fclose($handle);
-        unlink("csv/".$file);
+        unlink("csv/" . $file);
         $comp_list = $this->getCompResult($comp_id, 'admin', 0);
-        /*
-        users.last_name,
-        users.first_name,
-        clubers.title,
-        tr_last_name,
-        dancers.birthdate,
-        styles.style,
-        cat_count.name as count,
-        ligs.name as lig,
-        */
         $lost_arr=[];
         $temp='f=';
         foreach ($data as $d){
-            if ($d['first_name']=='ИТОГО:'){
+            if ($d == false){
                 break;
             }
             $lost=true;
             foreach ($comp_list as $c){
-                /*
-                 if ($d['last_name']==$c['last_name'] && $d['first_name']==$c['first_name']
-                        && $d['club']==$c['title'] && $d['trainer']==$c['tr_last_name']
-                        && $d['birthdate']==$c['birthdate'] && $d['style']==$c['style']
-                        && $d['count_name']==$c['count'] && $c['lig']==$d['lig']){
-                 */
-                if ($d['last_name']==trim($c['last_name']) && $d['first_name']==trim($c['first_name'])
-                        && $d['club']==trim($this->delsl($c['title']))
-                        && $d['birthdate']==trim($c['birthdate']) && $d['style']==trim($c['style'])
-                        && $d['count_name']==trim($c['count']) && $c['lig']==trim($d['lig'])){
+                if ($d['last_name'] == trim($c['last_name']) && $d['first_name'] == trim($c['first_name'])
+                        && $d['club'] == trim($this->delsl($c['title']))
+                        && $d['birthdate'] == substr(trim($c['birthdate']), 0, 4) && $d['style'] == trim($c['style'])
+                        && $d['count_name'] == trim($c['count']) && $c['lig'] == trim($d['lig'])){
                     $lost=false;
-                    $this->db->where('id',$c['id']);
-                    $this->db->update('comp_list',['place'=>$d['place']]);
-                    $temp .= '  ='.$c['id'];
+                    $this->db->where('id', $c['id']);
+                    $this->db->update('comp_list', ['place' => $d['place']]);
+                    $temp .= '  =' . $c['id'];
                 }
             }
             if ($lost){
                 $lost_arr[] = $d;
             }
         }
-        //return $temp;
         $html = '';
         foreach ($lost_arr as $l){
             $html.='<tr>';
@@ -1538,7 +1535,7 @@ class AjaxModel extends CI_Model{
         if ($role == 'admin'){
             $files[0] = [];
             $files[0]['name'] = 'Всё';
-            $name =  'list_'.$this->session->id.'_'.$comp_id.'_0';
+            $name =  'adminlist_'.$this->session->id.'_'.$comp_id.'_0';
             $files[0]['file'] = $this->makeCSV($list, $name);
         }
         $dan = implode(',', array_unique(array_column($list, 'id')));
@@ -1599,7 +1596,7 @@ class AjaxModel extends CI_Model{
                 $n++;
                 $files[$n] = [];
                 $files[$n]['name'] = 'Клуб '.$cl['title'];
-                $name =  'list_'.$this->session->id.'_'.$comp_id.'_'.$n;
+                $name =  'adminlist_'.$this->session->id.'_'.$comp_id.'_'.$n;
                 $files[$n]['file'] = $this->makeCSV($arr, $name);
             }
             foreach ($cl['trainers'] as $tr){//создаём списки по тренерам
@@ -1618,7 +1615,7 @@ class AjaxModel extends CI_Model{
                 $n++;
                 $files[$n] = [];
                 $files[$n]['name'] = 'Клуб '.$cl['title'].' Тренер '.$tr['trainer_name'];
-                $name =  'list_'.$this->session->id.'_'.$comp_id.'_'.$n;
+                $name =  'adminlist_'.$this->session->id.'_'.$comp_id.'_'.$n;
                 $files[$n]['file'] = $this->makeCSV($arr, $name);
             }
         }

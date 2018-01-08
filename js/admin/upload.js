@@ -16,10 +16,9 @@ $('#file').on('change',function(){
         url:'../../ajax/uploadResult',
         type:'POST',
         data:fdata,
-        processData: false, 
-        contentType: false, 
+        processData: false,
+        contentType: false,
         success: function(data){
-            $('#list').hide();
             if (data == ''){
                 $('#success').show();
                 $('#main_table').hide();
