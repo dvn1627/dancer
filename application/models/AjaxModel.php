@@ -480,6 +480,7 @@ class AjaxModel extends CI_Model{
             }
         }
         //$cats = $cats_all;
+
         /*добавление*/
         foreach ($cats as $cat){
             $q = $this->db->query('select MAX(part) as max_part from comp_list');
@@ -502,31 +503,47 @@ class AjaxModel extends CI_Model{
                         );
                 $this->db->insert('comp_list',$ins);
             }
-            return $find;
         }
-        /*
-        $q = $this->db->query('select count_id, lig_id, comp_id'
-                . ' from pays'
-                . ' where comp_id='.$comp_id);
-        $pay_list = $q->result_array();
-        $insert=array();
-        foreach ($cats as $c){
-            $find = FALSE;
-            foreach ($pay_list as $p){
-                if ($c['count_id'] == $p['count_id'] && $c['lig_id'] == $p['lig_id']  && $c['comp_id'] == $p['comp_id']){
-                    $find = TRUE;
+        //make return list
+        $return = [];
+        $i = 0;
+        foreach ($cats as $cat){
+            $sel = 'select l.name as lig_name, s.style, ca.name as age_name, cc.name as count_name,'
+                . ' u.first_name, u.last_name, clubers.title, ci.city,'
+                . ' (select users.last_name from users where id=t.user_id) as t_last_name,'
+                . ' (select users.first_name from users where id=t.user_id) as t_first_name'
+                . ' from ligs l, styles s, cat_age ca, cat_count cc, comp_list cl, clubers, trainers t,'
+                . ' users u, cities ci, dancers d'
+                . ' where cl.lig_id=l.id and cl.age_id=ca.id and cl.count_id=cc.id and cl.style_id=s.id'
+                . ' and cl.dancer_id=d.id and u.id=d.user_id and t.id=d.trainer_id and t.club_id=clubers.id'
+                . ' and ci.id=clubers.city_id'
+                . ' and l.id=' . $cat['lig_id']
+                . ' and ca.id=' . $cat['age_id']
+                . ' and cc.id=' . $cat['count_id']
+                . ' and s.id=' . $cat['style_id']
+                . ' and cl.comp_id=' . $comp_id;
+            $q = $this->db->query($sel);
+            $ret = $q->result_array();
+            $is_dan = false;
+            if (count($ret) > 0) {
+                $is_dan = true;
+                $return[$i] = [
+                    'summ_lig' => $ret[0]['style'] . ' ' . $ret[0]['age_name'] . ' ' . $ret[0]['count_name'] . ' ' . $ret[0]['lig_name'],
+                    'dancers' => [],
+                ];
+
+                foreach ($ret as $r) {
+                    $return[$i]['dancers'][] = [
+                        'name' => $r['last_name'] . ' ' . $r['first_name'],
+                        'city' => $r['city'],
+                        'club' => $r['title'],
+                        'trainer' => $r['t_last_name'] . ' ' . $r['t_first_name'],
+                    ];
                 }
-            }
-            if ($find == FALSE){
-                $insert[]=[
-                    'count_id'=>$c['count_id'],
-                    'lig_id'=>$c['lig_id'],
-                    'comp_id'=>$comp_id
-                        ];
+                $i++;
             }
         }
-        if (count($insert) > 0) $q= $this->db->insert_batch('pays',$insert);*/
-        return true;
+        return $return;
     }
 
     public function AdminCompList($comp_id, $role)

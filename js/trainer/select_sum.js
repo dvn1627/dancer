@@ -1,5 +1,6 @@
 (function($){$(function(){
-console.log('select sum cat CR');
+console.log('v=2');
+
 $('#add_but').click(function(){
    var list = [];
    $('.sum_cat').each(function(){
@@ -31,7 +32,6 @@ $('#add_but').click(function(){
         type:'POST',
         data:data,
         success: function(data){
-            console.log(data);
             var ret = JSON.parse(data);
             var html = '';
             for (var i = 0; i < ret.length; i++) {
@@ -65,7 +65,7 @@ show();
 
 function show(){
     $.ajax({
-        url:'../ajax/getCompListCluber',
+        url:'../ajax/getCompListTrainer',
         type:'POST',
         data:'comp_id='+$('#comp_id').val(),
         success: function(data){
@@ -93,5 +93,4 @@ function add_click(){
         });
     });
 }
-
 })})(jQuery)

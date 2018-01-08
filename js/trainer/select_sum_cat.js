@@ -1,4 +1,5 @@
 (function($){$(function(){
+console.log('v=2');
 
 $('#add_but').click(function(){
    var list = [];
@@ -29,7 +30,26 @@ $('#add_but').click(function(){
         type:'POST',
         data:data,
         success: function(data){
-            console.log('return=',data);
+            var ret = JSON.parse(data);
+            var html = '';
+            for (var i = 0; i < ret.length; i++) {
+                html += '<table class="table table-striped">';
+                html += '<caption>' + ret[i].summ_lig + '<caption>';
+                html += '<thead><tr><th>Танцор</th><th>Город</th><th>Клуб</th><th>Тренер</th></tr></thead>';
+                html += '<tbody>';
+                for (var k = 0; k < ret[i]dancers.length; k++) {
+                    html += '<tr>';
+                    html += '<td>' + ret[i]dancers[k].name + '</td>';
+                    html += '<td>' + ret[i]dancers[k].city + '</td>';
+                    html += '<td>' + ret[i]dancers[k].club + '</td>';
+                    html += '<td>' + ret[i]dancers[k].trainer + '</td>';
+                    html += '<tr>';
+                }
+                html += '</tbody></table>';
+            }
+            console.log('html=', html);
+            $('#result').html(html);
+            $('#myModal').modal('show');
             show();
         }
     });
@@ -70,5 +90,4 @@ function add_click(){
         });
     });
 }
-
 })})(jQuery)

@@ -311,8 +311,7 @@ class Ajax extends CI_Controller {
     public function addSummCats()
     {
         $ins= $this->AjaxModel->addSummCats($_POST);
-        echo $ins;
-
+        echo json_encode($ins);
     }
 
     public function getCompListTrainer()
