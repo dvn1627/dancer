@@ -34,6 +34,11 @@ class Ajax extends CI_Controller {
 		echo json_encode($user);
 	}
 
+	public function getRegions()
+	{
+		echo json_encode($this->CabinetModel->get_regions());
+	}
+
 	public function saveUser()
 	{
             $res = $this->AjaxModel->saveUser($_POST);
@@ -72,10 +77,20 @@ class Ajax extends CI_Controller {
         echo $this->CabinetModel->clubesHtml($_POST['city']);
     }
 
+	public function getClubes()
+    {
+        echo json_encode($this->CabinetModel->getClubes($_POST['city']));
+    }
+
     public function getCitiesHtml()
     {
         echo $this->CabinetModel->citiesHtml($_POST['region']);
     }
+
+	public function getCities()
+	{
+		echo json_encode($this->CabinetModel->getCities($_POST['region']));
+	}
 
     public function getTrainersHtml()
     {
@@ -246,6 +261,11 @@ class Ajax extends CI_Controller {
         var_dump($ins);
         //echo $ins;
     }
+
+	public function saveTrainerInfo()
+	{
+		echo $this->AjaxModel->saveTrainerInfo($_POST['trainer_id'], $_POST['club_id']);
+	}
 
     public function IUser(){
         $id=$this->session->id;

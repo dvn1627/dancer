@@ -118,7 +118,7 @@ class CabinetModel extends CI_Model{
 
 	public function getClubes($city)
 	{
-		$q=$this->db->query('select id,title from clubers where city_id='.$city);
+		$q=$this->db->query('select id,title from clubers where city_id=' . $city);
 		return $q->result_array();
 	}
 

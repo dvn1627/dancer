@@ -23,6 +23,32 @@
 </div>
 <!-- end delete modal -->
 
+<!-- Modal edit trainer info-->
+<div id="trainerModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Изменить клуб</h4>
+      </div>
+      <div class="modal-body">
+        <h4 id="trainer_name"></h4>
+        <select id="region_id"></select>
+        <select id="city_id"></select>
+        <select id="club_id"></select>
+		<input type="hidden" id="trainer_id">
+      </div>
+      <div class="modal-footer">
+		<button type="button" class="btn btn-success" data-dismiss="modal" id="save_trainer">СОХРАНИТЬ</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">НЕТ</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- end modal edit trainer info-->
+
 <h1 class="h4 text-success">Администрирование пользователей</h1>
 	<?php $this->load->view('admin/menu');?>
 	<div class="row">
@@ -108,6 +134,8 @@
 			<form id="user_form">
 				<input type="submit" id="edit_but" class='btn btn-warning' value="модерация">
 				<br><br>
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#trainerModal" id="trainer_but">Изменить клуб</button>
+                <br><br>
 				<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" id="delete_but">УДАЛИТЬ</button>
 				<div id="edit_block">
 					<input type="hidden" id="user_id" name="id" class="form-control">

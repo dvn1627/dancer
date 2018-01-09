@@ -7,10 +7,26 @@ class AjaxModel extends CI_Model{
             $this->load->helper('file');
     }
 
-    function getUserInfo($id){
-            $query = $this->db->query('select * from users where id='.$id);
-            $users=$query->result_array();
+    public function getUserInfo($id)
+    {
+            $query = $this->db->query('select * from users where id=' . $id);
+            $users = $query->result_array();
+            if ($users[0]['trainer'] == 2) {
+                $users[0]['trainer_info'] = $this->getTrainerRegionCity($id);
+            } else {
+                $users[0]['trainer_info'] = false;
+            }
             return $users[0];
+    }
+
+    public function getTrainerRegionCity($user_id)
+    {
+        $sel = 'select cl.city_id, ci.region_id, t.club_id, t.id'
+            . ' from trainers t, clubers cl, cities ci'
+            . ' where t.club_id=cl.id and cl.city_id=ci.id and t.user_id=' . $user_id;
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        return $res[0];
     }
 
     function saveUser($user){
@@ -18,32 +34,39 @@ class AjaxModel extends CI_Model{
         return $this->db->update('users', $user);
     }
 
+    public function saveTrainerInfo($trainer_id, $club_id)
+    {
+        $upd = 'update trainers set club_id=' . $club_id . ' where id=' . $trainer_id;
+        $q = $this->db->query($upd);
+        return 0;
+    }
+
     public function filterUsers($filter)
     {
             $one=true;
             $select='select * from users where deleted_at is null ';
             if ($filter['filter_admin']>-1){
-                    $select.='and admin='.$filter['filter_admin'];
+                    $select.=' and admin='.$filter['filter_admin'];
                     $one=false;
             }
             if ($filter['filter_organizer']>-1){
                     //$select.=($one==false) ? ' and':'';
-                    $select.='and organizer='.$filter['filter_organizer'];
+                    $select.=' and organizer='.$filter['filter_organizer'];
                     $one=false;
             }
             if ($filter['filter_cluber']>-1){
                     //$select.=($one==false) ? ' and':'';
-                    $select.='and cluber='.$filter['filter_cluber'];
+                    $select.=' and cluber='.$filter['filter_cluber'];
                     $one=false;
             }
             if ($filter['filter_trainer']>-1){
                     //$select.=($one==false) ? ' and':'';
-                    $select.='and trainer='.$filter['filter_trainer'];
+                    $select.=' and trainer='.$filter['filter_trainer'];
                     $one=false;
             }
             if ($filter['filter_dancer']>-1){
                     //$select.=($one==false) ? ' and':'';
-                    $select.='and dancer='.$filter['filter_dancer'];
+                    $select.=' and dancer='.$filter['filter_dancer'];
                     $one=false;
             }
             if ($one == true and strlen($filter['filter_text']) == 0) {

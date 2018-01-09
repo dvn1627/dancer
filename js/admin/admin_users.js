@@ -1,8 +1,83 @@
 (function($){$(function(){
 
+var regions;
+
+$.ajax({
+	url: baseUrl + 'ajax/getRegions',
+	type:'POST',
+	success: function(data){
+		regions = JSON.parse(data);
+	}
+});
+
+function regionsList(regionId = 0) {
+	var html = '<option value="0">Выберите регион</option>';
+	for (var i = 0; i < regions.length; i++) {
+		if (regions[i].id == regionId) {
+			html += '<option value="' + regions[i].id + '" selected="selected">' + regions[i].region + '</option>';
+		} else {
+			html += '<option value="' + regions[i].id + '">' + regions[i].region + '</option>';
+		}
+	}
+	$('#region_id').html(html);
+	$('#region_id').change(function(){
+		var id = $('#region_id').val();
+		if (id > 0) {
+			citiesList(id);
+		}
+	});
+}
+
+function citiesList(regionId, cityId = 0) {
+	$.ajax({
+		url: baseUrl + 'ajax/getCities',
+		type:'POST',
+		data: 'region=' + regionId,
+		success: function(data){
+			var cities = JSON.parse(data);
+			var html = '<option value="0">Выберите город</option>';
+			for (var i = 0; i < cities.length; i++) {
+				if (cities[i].id == cityId) {
+					html += '<option value="' + cities[i].id + '" selected="selected">' + cities[i].city + '</option>';
+				} else {
+					html += '<option value="' + cities[i].id + '">' + cities[i].city + '</option>';
+				}
+			}
+			$('#city_id').html(html);
+			$('#city_id').change(function(){
+				var id = $('#city_id').val();
+				if (id > 0) {
+					clubList(id);
+				}
+			});
+		}
+	});
+}
+
+function clubList(cityId, clubId = 0) {
+	$.ajax({
+		url: baseUrl + 'ajax/getClubes',
+		type:'POST',
+		data: 'city=' + cityId,
+		success: function(data){
+			var clubes = JSON.parse(data);
+			var html = '<option value="0">Выберите клуб</option>';
+			for (var i = 0; i < clubes.length; i++) {
+				if (clubes[i].id == clubId) {
+					html += '<option value="' + clubes[i].id + '" selected="selected">' + clubes[i].title + '</option>';
+				} else {
+					html += '<option value="' + clubes[i].id + '">' + clubes[i].title + '</option>';
+				}
+			}
+			$('#club_id').html(html);
+		}
+	});
+}
+
 $('#edit_block').hide();
 $('#edit_but').hide();
 $('#delete_but').hide();
+$('#trainer_but').hide();
 
 $('#edit_but').click(function(){
 	$('#edit_block').show();
@@ -23,6 +98,31 @@ $('#save_but').click(function(){
 	return false;
 });
 
+$('#save_trainer').click(function(){
+	var clubId = $('#club_id').val();
+	if (clubId > 0) {
+		$.ajax({
+			url: baseUrl + 'ajax/saveTrainerInfo',
+			type:'POST',
+			data:'trainer_id=' + $('#trainer_id').val() + '&club_id=' + clubId,
+			success: function(data){
+				console.log(data);
+				if (data == '0') {
+					var name = $('#trainer_name').text();
+					text = '<p class="alert alert-success alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Тренер ' + name + ' изменён</p>';
+				} else {
+					text = '<p class="alert alert-danger alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>ОШИБКА:</strong> ' + data + '</p>';
+				}
+				$('#success').remove();
+				$('main').prepend(text);
+			}
+		});
+	} else {
+		return false;
+	}
+	return true;
+});
+
 $('#filter_but').click(function(){
 	var form=$('#filter_form').serialize();
 	$.ajax({
@@ -40,6 +140,7 @@ $('#filter_but').click(function(){
 				table+='</tr>';
 			}
 			$('#user_table tbody').html(table);
+			citiesList();
 			user_click();
 		}
 	});
@@ -139,6 +240,14 @@ function user_info(id){
 				}
 			info+='</ul>';
 			$('#user_info').html(info);
+			if (user.trainer == 2) {
+				$('#trainer_but').show();
+				regionsList(user.trainer_info.region_id);
+				$('#trainer_id').val(user.trainer_info.id);
+				$('#trainer_name').html(user.last_name + ' ' + user.first_name);
+				citiesList(user.trainer_info.region_id, user.trainer_info.city_id);
+				clubList(user.trainer_info.city_id, user.trainer_info.club_id);
+			}
 		}
 	})
 }
