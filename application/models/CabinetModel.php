@@ -1154,4 +1154,16 @@ class CabinetModel extends CI_Model{
         }
         return $html;
 	}
+
+	public function getNewUsers()
+	{
+		$sel = 'select id from users where dancer=1 OR trainer=1 OR cluber=1 OR organizer=1 OR admin=1';
+		$q = $this->db->query($sel);
+		$r = $q->result_array();
+		if (count($r) > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

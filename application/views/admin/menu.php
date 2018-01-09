@@ -1,3 +1,8 @@
+<?php
+if ($new) {
+    echo '<h2 class="text-danger">Есть новые запросы ролей</h2>';
+}
+ ?>
 <div class="btn-group">
     <a href="<?php echo base_url();?>index.php/cabinet/adminusers" class="btn btn-default">
         Пользователи

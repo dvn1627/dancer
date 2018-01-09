@@ -117,7 +117,8 @@ class Cabinet extends CI_Controller
     {
         if ($this->session->admin != 2) $this->load->view('errors/error_access');
         else {
-            $this->load->view('admin/index');
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/index', ['new'=>$new]);
         }
     }
 
@@ -130,7 +131,8 @@ class Cabinet extends CI_Controller
             $config = $this->CabinetModel->paginate('users','index.php/cabinet/adminusers');
             $users = $this->CabinetModel->getUsers($id);
             $this->pagination->initialize($config);
-            $this->load->view('admin/users',['users' => $users, 'page'=>$id]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/users',['users' => $users, 'page'=>$id, 'new'=>$new]);
         }
     }
 
@@ -140,7 +142,8 @@ class Cabinet extends CI_Controller
         }
         else {
             $ways=$this->CabinetModel->htmlWays();
-            $this->load->view('admin/ways',['ways' => $ways]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/ways',['ways' => $ways, 'new'=>$new]);
         }
     }
 
@@ -150,7 +153,8 @@ class Cabinet extends CI_Controller
         }
         else {
             $ways=$this->CabinetModel->selectWays();
-            $this->load->view('admin/styles',['ways' => $ways]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/styles',['ways' => $ways, 'new'=>$new]);
         }
     }
 
@@ -160,7 +164,8 @@ class Cabinet extends CI_Controller
         }
         else {
             $counts=$this->CabinetModel->HtmlCounts();
-            $this->load->view('admin/counts',['counts' => $counts]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/counts',['counts' => $counts, 'new'=>$new]);
         }
     }
 
@@ -170,7 +175,8 @@ class Cabinet extends CI_Controller
         }
         else {
             $ways=$this->CabinetModel->selectWays();
-            $this->load->view('admin/ligs',['ways' => $ways]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/ligs',['ways' => $ways, 'new'=>$new]);
         }
     }
 
@@ -180,7 +186,8 @@ class Cabinet extends CI_Controller
         }
         else {
             $ages=$this->CabinetModel->htmlAges();
-            $this->load->view('admin/ages',['ages' => $ages]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/ages',['ages' => $ages, 'new'=>$new]);
         }
     }
 
@@ -191,7 +198,8 @@ class Cabinet extends CI_Controller
         else {
             $ages=$this->CabinetModel->selectAges();
             $ways=$this->CabinetModel->selectWays();
-            $this->load->view('admin/ligage',['ways'=>$ways,'ages'=>$ages]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/ligage',['ways'=>$ways,'ages'=>$ages, 'new'=>$new]);
         }
     }
 
@@ -261,6 +269,7 @@ class Cabinet extends CI_Controller
                 'ways'=>$ways,
                 'competitions'=>$competitions,
                 'statuses'=>$statuses,
+                'new'=> $this->CabinetModel->getNewUsers(),
             );
             $this->load->view('admin/competitions',$data);
         }
@@ -392,6 +401,7 @@ class Cabinet extends CI_Controller
                 'comp_list'=>$comp_list,
                 'files'=>$files,
                 'status'=>$status,
+                'new'=> $this->CabinetModel->getNewUsers(),
             );
             $this->load->view('admin/competition',$data);
         }
@@ -402,6 +412,8 @@ class Cabinet extends CI_Controller
         if ($this->session->admin == 2 || $this->session->organizer == 2){
             $res= $this->CabinetModel->getNumbers($comp_id);
             $res['comp_id']=$comp_id;
+            $new = $this->CabinetModel->getNewUsers();
+            $res['new'] = $new;
             $this->load->view('admin/numbers',$res);
         }
         else {
@@ -429,7 +441,8 @@ class Cabinet extends CI_Controller
         else {
         $file=$this->AjaxModel->getResultCsv($comp_id, 'admin');
         $list=$this->AjaxModel->getResultHtml($comp_id, 'admin');
-        $this->load->view('admin/upload',['comp_id'=>$comp_id,'file'=>$file,'list'=>$list]);
+        $new = $this->CabinetModel->getNewUsers();
+        $this->load->view('admin/upload',['comp_id'=>$comp_id,'file'=>$file,'list'=>$list, 'new'=>$new]);
         }
     }
 
@@ -494,7 +507,8 @@ class Cabinet extends CI_Controller
         }
         else {
             $data = $this->AjaxModel->getYearPay2('all', 20, 1);
-            $this->load->view('admin/yearpay',['list'=>$data['list'],'pagg'=>$data['pagg']]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/yearpay',['list'=>$data['list'],'pagg'=>$data['pagg'], 'new'=>$new]);
         }
 
     }
@@ -534,7 +548,8 @@ class Cabinet extends CI_Controller
             $data=array(
                 'comp_id'=>$comp_id,
                 'comp_list'=>$comp_list,
-                'pay_list'=>$pay_list
+                'pay_list'=>$pay_list,
+                'new'=>$this->CabinetModel->getNewUsers(),
             );
             $this->load->view('admin/comppays',$data);
         }
@@ -543,6 +558,8 @@ class Cabinet extends CI_Controller
     public function compcontacts($comp_id)
     {
         $cont= $this->CabinetModel->getCompContacts($comp_id);
+        $new = $this->CabinetModel->getNewUsers();
+        $cont['new'] = $new;
         $this->load->view('admin/contacts',$cont);
     }
 
@@ -553,6 +570,7 @@ class Cabinet extends CI_Controller
         }
         else {
         $cont= $this->CabinetModel->getCompContacts($comp_id);
+        $cont['new'] =  $this->CabinetModel->getNewUsers();
         $this->load->view('admin/contacts',$cont);
         }
     }
@@ -586,7 +604,8 @@ class Cabinet extends CI_Controller
         }
         else {
             $ways=$this->CabinetModel->selectWays();
-            $this->load->view('admin/statistic',['ways' => $ways]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/statistic',['ways' => $ways, 'new'=>$new]);
         }
     }
 
@@ -598,7 +617,8 @@ class Cabinet extends CI_Controller
             $clubes=$this->CabinetModel->selectAllClubes();
             $data=[
                 'comp_id'=>$comp_id,
-                'clubes'=>$clubes
+                'clubes'=>$clubes,
+                'new'=>$this->CabinetModel->getNewUsers(),
             ];
             //var_dump($clubes);
             $this->load->view('admin/adddancers',$data);
@@ -618,7 +638,8 @@ class Cabinet extends CI_Controller
             $data=array(
                 'dancers'=>$dancers,
                 'comp_id'=>$comp_id,
-                'comp_list'=>$comp_list
+                'comp_list'=>$comp_list,
+                'new'=> $this->CabinetModel->getNewUsers(),
             );
             $this->load->view('admin/adddancerstocomp',$data);
         }
@@ -639,6 +660,7 @@ class Cabinet extends CI_Controller
                 'ways'=>$ways,
                 'competitions'=>$competitions,
                 'statuses'=>$statuses,
+                'new'=> $this->CabinetModel->getNewUsers(),
             );
             $this->load->view('admin/archive', $data);
         }
@@ -661,7 +683,8 @@ class Cabinet extends CI_Controller
             $this->load->view('errors/error_access');
         } else {
             $regions = $this->CabinetModel->get_regions();
-            $this->load->view('admin/cities', ['regions' => $regions]);
+            $new = $this->CabinetModel->getNewUsers();
+            $this->load->view('admin/cities', ['regions' => $regions, 'new'=>$new]);
         }
     }
 }
