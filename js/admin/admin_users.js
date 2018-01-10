@@ -140,7 +140,6 @@ $('#filter_but').click(function(){
 				table+='</tr>';
 			}
 			$('#user_table tbody').html(table);
-			citiesList();
 			user_click();
 		}
 	});
