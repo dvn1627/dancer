@@ -695,11 +695,15 @@ class CabinetModel extends CI_Model{
                     . ' and l.way_id=(select way_id from competitions where id='.$comp_id.')'
                     . ' and e.lig_id=l.id and e.dancer_id=d.id');
             $dan_lig= $q->result_array();
-            if (count($dan_lig) == 0){
+            if (count($dan_lig) == 0) {
                 $q= $this->db->query('select id, name, number from ligs'
-                    . ' where number=1 and way_id=(select way_id from competitions where id='.$comp_id.')');
+                    . ' where number<3 and way_id=(select way_id from competitions where id='.$comp_id.')');
                 $dan_lig = $q->result_array();
-                }
+            } elseif ($dan_lig[0]['number'] == 1) {
+                $q= $this->db->query('select id, name, number from ligs'
+                    . ' where number<3 and way_id=(select way_id from competitions where id='.$comp_id.')');
+                $dan_lig = $q->result_array();
+            }
             /*if ($dan_lig[0]['name']!='Профессионалы'){
                 $q = $this->db->query('select id, name, number from ligs'
                     . ' where number='.($dan_lig[0]['number']+1).' and way_id=(select way_id from competitions where id='.$comp_id.')');
