@@ -32,6 +32,8 @@ function add_click(){
             type:'POST',
             data:'comp_id='+$('#comp_id').val(),
             success: function(data){
+                console.log(data);
+                
                 var mess='Соревнование ';
                 var alert='alert ';
                 $('#mess').removeClass();

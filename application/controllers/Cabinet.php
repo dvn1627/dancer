@@ -672,7 +672,7 @@ class Cabinet extends CI_Controller
             $this->load->view('errors/error_access');
         }
         else {
-            $this->AjaxModel->recoverCompetition(2);
+            $this->AjaxModel->recoverCompetition($comp_id);
             $this->admincompetition($comp_id);
         }
     }

@@ -852,7 +852,7 @@ class CabinetModel extends CI_Model{
                 . ' where cl.dancer_id=d.id and d.trainer_id=t.id and cl.comp_id='.$comp_id);
         $clubs = $q->result_array();
         $q = $this->db->query('select DISTINCT '
-                . ' cl.dancer_id,'
+                . ' cl.dancer_id, u.last_name,'
                 . ' t.club_id, cl.count_id'
                 . ' from comp_list as cl, cat_count as cc, '
                 . ' dancers as d, users as u, trainers as t'
@@ -944,7 +944,7 @@ class CabinetModel extends CI_Model{
                 }
             }
         }
-        return true;
+        return 1;
     }
 
     public function getNumbers($comp_id)

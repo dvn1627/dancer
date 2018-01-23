@@ -14,7 +14,7 @@
         <h3><?php echo $this->CabinetModel->getCompName($comp_id); ?></h3>
       </div>
       <div class="modal-footer">
-        <a class="btn btn-default" href="../recoverCompetition/' . $comp_id . '">ДА</a>
+        <a class="btn btn-default" href="../recoverCompetition/<?php echo $comp_id; ?>">ДА</a>
         <button type="button" class="btn btn-default" data-dismiss="modal">НЕТ</button>
       </div>
     </div>

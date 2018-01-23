@@ -719,7 +719,7 @@ class AjaxModel extends CI_Model{
         foreach ($res as $r) {
             $arr[$i] = [];
             $arr[$i]['id'] = $r['id'];
-            $arr[$i]['№ участия (печатаемый)'] = $r['print_number'];
+            $arr[$i]['№ участия (печатаемый)'] = (is_null($r['print_number'])) ?  0 : $r['print_number'];
             $arr[$i]['ФИ танцоров'] = $r['last_name'] . ' ' . $r['first_name'];
             $arr[$i]['Город'] = $r['city'];
             $arr[$i]['Клуб'] = $r['title'];
@@ -734,11 +734,13 @@ class AjaxModel extends CI_Model{
             $arr[$i]['Кол-во уч-в в группе'] = $r['part_count'];
             $arr[$i]['Организация'] = $r['bell'];
             if ($r['type'] == 1) {
-                $arr[$i]['Взнос грн.'] = $r['pay_iude'];
+                $arr[$i]['Взнос грн.'] = (is_null($r['pay_iude'])) ?  0 : $r['pay_iude'];
             } elseif ($r['type'] == 2) {
-                $arr[$i]['Взнос грн.'] = $r['pay_other'];
+                $arr[$i]['Взнос грн.'] = (is_null($r['pay_other'])) ?  0 : $r['pay_other'];
+            } elseif ($r['type'] == 3) {
+                $arr[$i]['Взнос грн.'] = (is_null($r['pay_not'])) ?  0 : $r['pay_not'];
             } else {
-                $arr[$i]['Взнос грн.'] = $r['pay_not'];
+                $arr[$i]['Взнос грн.'] = 0;
             }
             $i++;
         }
@@ -1058,18 +1060,6 @@ class AjaxModel extends CI_Model{
                 $first = false;
             } else{
                 $res = explode(";", iconv('Windows-1251', 'UTF-8', $str));
-                /*
-                new     old
-                1[2]    0 = first_name
-                1[1]    1 = last_name
-                6       5 = birthdate
-                3       7 = club
-                5       8 = trainer
-                11      11= lig
-                8       12= style
-                10      13= count_name
-                15      16= place
-                */
                 $dancer = trim($res[1]);
                 if (trim($res[0]) == 'ИТОГО:') {
                     $data[] = false;
@@ -1174,12 +1164,27 @@ class AjaxModel extends CI_Model{
         if ($lost){
             $mess='ERROR';
         }
-        $q = $this->db->query('select way_id from competitions where id='.$comp_id);
+        $sel = 'select c.way_id, w.way' 
+            . ' from competitions c, ways w' 
+            . ' where c.id=' . $comp_id
+            . ' and w.id=c.way_id';
+        $q = $this->db->query($sel);
         $res= $q->result();
         $way_id= $res[0]->way_id;
-        $q = $this->db->query('select dancer_id, sum(points) as point'
-                . ' from comp_list where comp_id='.$comp_id
-                . ' group by dancer_id');
+        $way = $res[0]->way;
+        if ($way == 'Восточный танец') {
+            $sel = 'select cl.dancer_id, sum(cl.points) as point'
+            . ' from comp_list cl, styles s'
+            . ' where cl.comp_id=' . $comp_id
+            . ' and s.id=cl.style_id'
+            . ' and s.style="Raqs el Sharqi"'
+            . ' group by cl.dancer_id';
+        } else {
+            $sel = 'select dancer_id, sum(points) as point'
+            . ' from comp_list where comp_id=' . $comp_id
+            . ' group by dancer_id';
+        }
+        $q = $this->db->query($sel);
         $comp_points = $q->result_array();
         foreach($comp_points as $c) {
             if ($c['point'] == 0) {
@@ -1243,9 +1248,10 @@ class AjaxModel extends CI_Model{
 
     public function recoverCompetition($comp_id)
     {
-        $sel  = 'select id, dancer_id, points'
-                . ' from comp_list'
-                . ' where comp_id=' . $comp_id;
+        $sel  = 'select c.id, c.dancer_id, c.points, s.style, w.way'
+                . ' from comp_list c, styles s, competitions co, ways w'
+                . ' where c.comp_id=' . $comp_id
+                . ' and c.style_id=s.id and co.id=c.comp_id and co.way_id=w.id';
         $q = $this->db->query($sel);
         $competition = $q->result_array();
         $sel  = 'select ex.id, ex.dancer_id, ex.lig_id, ex.points'
@@ -1265,11 +1271,21 @@ class AjaxModel extends CI_Model{
             $points = $ex['points'];
             foreach ($competition as $comp) {
                 if ($ex['dancer_id'] == $comp['dancer_id']) {
-                    $points -= $comp['points'];
+                    //edit only for
+                    if ($comp['way'] == 'Восточный танец') {
+                        if ($comp['style'] == 'Raqs el Sharqi') {
+                            $minus = $comp['points'];
+                        } else {
+                            $minus = 0;
+                        }
+                    } else {
+                        $minus = $comp['points'];
+                    }
+                    //
+                    $points -= $minus;
                 }
             }
             $ex_lig = $ex['lig_id'];
-            //while ($points <0 ) {
             if ($points <0) {
                 foreach ($ligs as $lig_key => $lig_val) {
                     if ($lig_val['id'] == $ex['lig_id']) {
