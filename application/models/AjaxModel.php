@@ -1775,7 +1775,9 @@ class AjaxModel extends CI_Model{
                 . " where comp_id={$list[$i]['comp_id']} and count_id={$list[$i]['count_id']} and lig_id={$list[$i]['lig_id']}";
             $q = $this->db->query($sel);
             $res = $q->result_array();
-            if ($list[$i]['bell_type'] == 1) {
+            if (count($res) == 0) {
+                $list[$i]['pay'] = 0;
+            } elseif ($list[$i]['bell_type'] == 1) {
                 $list[$i]['pay'] = $res[0]['pay_iude'];
             } elseif ($list[$i]['bell_type'] == 1) {
                 $list[$i]['pay'] = $res[0]['pay_other'];
