@@ -26,6 +26,23 @@ function add_click(){
         });
     });
 
+    $('#close_but').click(function(){
+        $.ajax({
+            url:'../../ajax/closeComp',
+            type:'POST',
+            data:'comp_id='+$('#comp_id').val(),
+            success: function(data){
+                var mess='регистрация закрыта';
+                var alert='alert alert-warning';
+                $('#mess').addClass(alert);
+                $('#mess').text(mess);
+                 setTimeout(function() {
+                    location.reload();
+                  }, 1000);
+            }
+        });
+    });
+
     $('#done_but').click(function(){
         $.ajax({
             url:'../../ajax/doneComp',

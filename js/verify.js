@@ -5,7 +5,7 @@ function verify(arr){//функция проверки формы
 		
 	for (var i = arr.length - 1; i >= 0; i--){
 		var test=$("#"+arr[i][0]);
-		if (test.val().length>0) test.val(test.val().trim());
+		if (test.val().length) test.val(test.val().trim());
 		var reg=0;
 		if (arr[i][1]=='login') reg=test.val().search(/[a-zA-Z_0-9]{2,}/);
 		if (arr[i][1]=='name') reg=test.val().search(/[a-zA-Z_0-9а-яА-Я]{2,}/);

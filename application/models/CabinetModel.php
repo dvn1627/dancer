@@ -329,7 +329,7 @@ class CabinetModel extends CI_Model{
             $html.='<a href="../cabinet/experience/'.$r->id.'" class="btn btn-default btn-sm">опыт</a>';
             if ($r->dancer != 2 ){
                 $html.=' <button class="btn btn-success btn-sm activate" id="a'.
-                        $r->id.'">activate</button></td>';
+                        $r->id.'">activate</button>';
             }
             if ($r->dancer == 1 ||  $r->dancer == 2){
                 $html.=' <button class="btn btn-warning btn-sm deactivate" id="d'.

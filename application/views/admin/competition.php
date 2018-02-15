@@ -63,6 +63,8 @@
 <?php
 if ($status == "CLOSE") {
     echo '<a class="btn btn-info" href="../numbers/' . $comp_id . '">Номера участников</a>';
+} else {
+    echo '<button class="btn btn-warning" id="close_but">Остановить регистрацию</button>';
 }
  ?>
 <a class="btn btn-info" href="../comppays/<?php echo $comp_id; ?>">Оплата за конкурс</a>

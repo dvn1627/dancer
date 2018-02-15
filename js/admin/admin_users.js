@@ -86,15 +86,23 @@ $('#edit_but').click(function(){
 });
 
 $('#save_but').click(function(){
-	var form=$('#user_form').serialize();
-	$.ajax({
-		url: baseUrl + 'ajax/saveUser',
-		type:'POST',
-		data:form,
-		success: function(data){
-
-		}
-	});
+	var ver = verify([
+        ['last_name','name'],
+        ['first_name','name'],
+        ['password','pass'],
+        ['email','email'],
+	]);
+	if (ver) {
+		var form=$('#user_form').serialize();
+		$.ajax({
+			url: baseUrl + 'ajax/saveUser',
+			type:'POST',
+			data:form,
+			success: function(data){
+	
+			}
+		});
+	}
 	return false;
 });
 

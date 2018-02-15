@@ -39,10 +39,12 @@
 <?php
 if ($status == "CLOSE") {
     echo '<a class="btn btn-info" href="../numbers/' . $comp_id . '">Номера участников</a>';
+} else {
+    echo '<button class="btn btn-warning" id="close_but">Остановить регистрацию</button>';
 }
 ?>
 <a class="btn btn-default" href="../orgcompcontacts/<?php echo $comp_id; ?>">Контакты</a>
-<button class="btn btn-warning" id="close_but">Остановить регистрацию</button>
+
 <p id="mess"></p>
 <div class="row">
     <div class="col-md-12">

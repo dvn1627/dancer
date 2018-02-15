@@ -34,6 +34,9 @@ $('#close_but').click(function(){
             var alert='alert alert-warning';
             $('#mess').addClass(alert);
             $('#mess').text(mess);
+             setTimeout(function() {
+                location.reload();
+              }, 1000);
         }
     });
 });

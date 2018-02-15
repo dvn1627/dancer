@@ -3,15 +3,28 @@
 addClick();
 
 $('#savemodal').click(function(){
-    var data=$('#formmodal').serializeArray();
-    $.ajax({
-        url:'../ajax/saveDancer',
-        type:'POST',
-        data:data,
-        success: function(data){
-            show();
-        }
-    });
+    var ver = verify([
+        ['e_last_name','name'],
+        ['e_first_name','name'],
+        ['e_password','pass'],
+        ['e_email','email'],
+        ['e_birthdate','date'],
+        ['e_bell','num']
+    ]);
+    
+    if (ver){
+        var data=$('#formmodal').serializeArray();
+        $.ajax({
+            url:'../ajax/saveDancer',
+            type:'POST',
+            data:data,
+            success: function(data){
+                show();
+            }
+        });
+    } else {
+        return false;
+    }
 });
 
 $('#new_but').click(function(){
