@@ -26,6 +26,9 @@ class AjaxModel extends CI_Model{
             . ' where t.club_id=cl.id and cl.city_id=ci.id and t.user_id=' . $user_id;
         $q = $this->db->query($sel);
         $res = $q->result_array();
+        if (count($res) == 0) {
+            return false;
+        }
         return $res[0];
     }
 
@@ -34,10 +37,15 @@ class AjaxModel extends CI_Model{
         return $this->db->update('users', $user);
     }
 
-    public function saveTrainerInfo($trainer_id, $club_id)
+    public function saveTrainerInfo($trainer_id, $club_id, $user_id)
     {
-        $upd = 'update trainers set club_id=' . $club_id . ' where id=' . $trainer_id;
-        $q = $this->db->query($upd);
+        if ($trainer_id == 0) {
+            $ins = 'insert into trainers (user_id, club_id)';
+            $ins .= ' values(' . $user_id . ',' . $club_id . ')';
+        } else {
+            $ins = 'update trainers set club_id=' . $club_id . ' where id=' . $trainer_id;
+        }
+        $q = $this->db->query($ins);    
         return 0;
     }
 

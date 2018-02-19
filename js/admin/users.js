@@ -108,11 +108,11 @@ $('#save_but').click(function(){
 
 $('#save_trainer').click(function(){
 	var clubId = $('#club_id').val();
-	if (clubId > 0) {
+	if (clubId > 0) {		
 		$.ajax({
 			url: baseUrl + 'ajax/saveTrainerInfo',
 			type:'POST',
-			data:'trainer_id=' + $('#trainer_id').val() + '&club_id=' + clubId,
+			data:'trainer_id=' + $('#trainer_id').val() + '&club_id=' + clubId + '&user_id=' + $('#user_id').val(),
 			success: function(data){
 				console.log(data);
 				if (data == '0') {
@@ -177,6 +177,8 @@ function user_info(id){
 		success: function(data){
 			$('#edit_but').show();
 			$('#delete_but').show();
+			console.log(data);
+			
 			var user=JSON.parse(data);
 			$('#user_id').val(user.id);
 			$('#last_name').val(user.last_name);

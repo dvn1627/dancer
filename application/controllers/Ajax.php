@@ -264,7 +264,12 @@ class Ajax extends CI_Controller {
 
 	public function saveTrainerInfo()
 	{
-		echo $this->AjaxModel->saveTrainerInfo($_POST['trainer_id'], $_POST['club_id']);
+        if (empty($_POST['trainer_id'])) {
+            $trainer_id = 0;
+        } else {
+            $trainer_id = $_POST['trainer_id'];
+        }
+		echo $this->AjaxModel->saveTrainerInfo($trainer_id, $_POST['club_id'], $_POST['user_id']);
 	}
 
     public function IUser(){

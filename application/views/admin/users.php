@@ -275,4 +275,4 @@ if ($page == 0) {
 }
  ?>
 </script>
-<script src="/js/admin/admin_users.js"></script>
+<script src="/js/admin/users.js"></script>
