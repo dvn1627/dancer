@@ -16,6 +16,11 @@ class AjaxModel extends CI_Model{
             } else {
                 $users[0]['trainer_info'] = false;
             }
+            if ($users[0]['dancer'] == 2) {
+                $users[0]['dancer_info'] = $this->checkDancer($id);
+            } else {
+                $users[0]['dancer_info'] = false;
+            }
             return $users[0];
     }
 
@@ -32,6 +37,17 @@ class AjaxModel extends CI_Model{
         return $res[0];
     }
 
+    private function checkDancer($id)
+    {
+        $sel = 'select id from dancers where user_id=' . $id;
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        if (count($res) == 0) {
+            return false;
+        }
+        return $res[0]['id'];
+    }
+
     function saveUser($user){
         $this->db->where('id', $user['id']);
         return $this->db->update('users', $user);
@@ -45,7 +61,7 @@ class AjaxModel extends CI_Model{
         } else {
             $ins = 'update trainers set club_id=' . $club_id . ' where id=' . $trainer_id;
         }
-        $q = $this->db->query($ins);    
+        $q = $this->db->query($ins);
         return 0;
     }
 
@@ -584,7 +600,12 @@ class AjaxModel extends CI_Model{
         foreach ($rows as $row){
             $html.='<tr>';
             $html.='<td>'.$row['print_number'].'</td>';
-            $html.='<td>'.$row['last_name'].' '.$row['first_name'].'</td>';
+            if (is_null($row['pay'])) {
+                $html.='<td class="text-danger">';
+            } else {
+                $html.='<td>';
+            }
+            $html .= $row['last_name'].' '.$row['first_name'].'</td>';
             $html.='<td>'.substr($row['birthdate'],0,4).'</td>';
             if ($row['danlig']==null){
                 $row['danlig']='Дебют';
@@ -630,7 +651,7 @@ class AjaxModel extends CI_Model{
     {
         switch ($role){
             case 'trainer':
-                $q = $this->db->query('select DISTINCT d.id, u.first_name, u.last_name, cl.part,'
+                $q = $this->db->query('select DISTINCT d.id, d.pay, u.first_name, u.last_name, cl.part,'
                         . ' b.type, cl.print_number,'
                         . ' (select pays.pay_iude from pays where pays.comp_id=cl.comp_id and pays.lig_id=cl.lig_id and pays.count_id=cl.count_id) as pay_iude,'
                         . ' (select pays.pay_not from pays where pays.comp_id=cl.comp_id and pays.lig_id=cl.lig_id and pays.count_id=cl.count_id) as pay_not,'
@@ -649,7 +670,7 @@ class AjaxModel extends CI_Model{
                 $res = $q->result_array();
                 break;
             case 'admin':
-                $q = $this->db->query('select DISTINCT d.id, d.birthdate, u.first_name, u.last_name, u.first_name, u.father_name, cl.part, cl.points, cl.id as cl_id,'
+                $q = $this->db->query('select DISTINCT d.id, d.birthdate, d.pay, u.first_name, u.last_name, u.first_name, u.father_name, cl.part, cl.points, cl.id as cl_id,'
                         . ' (select name from ligs where id=(select experience.lig_id from experience where experience.dancer_id=d.id '
                         . ' and experience.way_id=(select way_id from competitions where id='.$comp_id.'))) as danlig,'
                         . ' b.type, d.birthdate,b.name as bell, clubers.title,'
@@ -677,7 +698,7 @@ class AjaxModel extends CI_Model{
                 $res = $q->result_array();
                 break;
             case 'cluber':
-                $q = $this->db->query('select DISTINCT d.id, u.first_name, u.last_name,cl.part,'
+                $q = $this->db->query('select DISTINCT d.id, d.pay, u.first_name, u.last_name,cl.part,'
                         . ' b.type, cl.print_number,'
                         . ' (select pays.pay_iude from pays where pays.comp_id=cl.comp_id and pays.lig_id=cl.lig_id and pays.count_id=cl.count_id) as pay_iude,'
                         . ' (select pays.pay_not from pays where pays.comp_id=cl.comp_id and pays.lig_id=cl.lig_id and pays.count_id=cl.count_id) as pay_not,'
@@ -696,7 +717,7 @@ class AjaxModel extends CI_Model{
                 $res = $q->result_array();
                 break;
             case 'organizer':
-                $q = $this->db->query('select DISTINCT d.id, u.first_name, u.last_name, d.birthdate,cl.part,'
+                $q = $this->db->query('select DISTINCT d.id, d.pay, u.first_name, u.last_name, d.birthdate,cl.part,'
                         . ' b.type, cl.print_number,'
                         . ' (select pays.pay_iude from pays where pays.comp_id=cl.comp_id and pays.lig_id=cl.lig_id and pays.count_id=cl.count_id) as pay_iude,'
                         . ' (select pays.pay_not from pays where pays.comp_id=cl.comp_id and pays.lig_id=cl.lig_id and pays.count_id=cl.count_id) as pay_not,'
@@ -1172,8 +1193,8 @@ class AjaxModel extends CI_Model{
         if ($lost){
             $mess='ERROR';
         }
-        $sel = 'select c.way_id, w.way' 
-            . ' from competitions c, ways w' 
+        $sel = 'select c.way_id, w.way'
+            . ' from competitions c, ways w'
             . ' where c.id=' . $comp_id
             . ' and w.id=c.way_id';
         $q = $this->db->query($sel);
@@ -1380,14 +1401,14 @@ class AjaxModel extends CI_Model{
                 $sel='select u.last_name, u.first_name, u.father_name, d.id,'
                     . ' u.phone, u.email, c.title, d.pay'
                     . ' from users u, dancers d, trainers t, clubers c'
-                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id'
+                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id and u.deleted_at is null'
                     . ' order by d.id'
                     . ' limit ' . (($page - 1) * $num) . ',' . $num;
                 $q = $this->db->query($sel);
                 $res = $q->result_array();
                 $q = $this->db->query('select count(d.id) as num'
                     . ' from users u, dancers d, trainers t, clubers c'
-                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id');
+                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id  and u.deleted_at is null');
                 $r = $q->result();
                 $all = $r[0]->num;
                 $pages = ceil($all / $num);
@@ -1397,7 +1418,7 @@ class AjaxModel extends CI_Model{
                 $sel='select u.last_name, u.first_name, u.father_name, d.id, '
                     . ' u.phone, u.email, c.title, d.pay'
                     . ' from users u, dancers d, trainers t, clubers c'
-                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id'
+                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id and u.deleted_at is null'
                     . ' and d.pay>='.$now
                     . ' order by d.id'
                     . ' limit ' . (($page - 1) * $num) . ',' . $num;
@@ -1405,7 +1426,7 @@ class AjaxModel extends CI_Model{
                 $res = $q->result_array();
                 $q = $this->db->query('select count(d.id) as num'
                     . ' from users u, dancers d, trainers t, clubers c'
-                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id'
+                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id  and u.deleted_at is null'
                     . ' and d.pay>='.$now);
                 $r = $q->result();
                 $all = $r[0]->num;
@@ -1416,7 +1437,7 @@ class AjaxModel extends CI_Model{
                 $sel='select u.last_name, u.first_name, u.father_name,'
                     . ' u.phone, u.email, c.title, d.pay, d.id'
                     . ' from users u, dancers d, trainers t, clubers c'
-                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id'
+                    . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id and u.deleted_at is null'
                     . ' and (ISNULL(d.pay) or d.pay<'.$now.')'
                     . ' order by d.id'
                     . ' limit ' . (($page - 1) * $num) . ',' . $num;
@@ -1424,7 +1445,7 @@ class AjaxModel extends CI_Model{
                 $res = $q->result_array();
                  $q = $this->db->query('select count(d.id) as num'
                  . ' from users u, dancers d, trainers t, clubers c'
-                 . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id'
+                 . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id and u.deleted_at is null'
                  . ' and (ISNULL(d.pay) or d.pay<'.$now.')');
                 $r = $q->result();
                 $all = $r[0]->num;
@@ -1462,8 +1483,12 @@ class AjaxModel extends CI_Model{
 
     public function saveYearPays($data)
     {
-        for ($i=0;$i<count($data['id']);$i++){
-            $ins=['pay'=>$data['year'][$i]];
+        for ($i=0;$i<count($data['id']);$i++) {
+            if ($data['year'][$i] == 0) {
+                $ins=['pay'=>null];
+            } else {
+                $ins=['pay'=>$data['year'][$i]];
+            }
             $this->db->where('id',$data['id'][$i]);
             $this->db->update('dancers',$ins);
         }
@@ -2002,5 +2027,68 @@ class AjaxModel extends CI_Model{
             . '" where id=' . $id;
         $q = $this->db->query($upd);
         return 0;
+    }
+
+    public function getExperience($dancer_id, $way_id)
+    {
+        $return = [];
+        $sel = 'select id, name from ligs where way_id=' . $way_id
+            . ' and deleted=0 order by number asc';
+        $q = $this->db->query($sel);
+        $return['ligs'] = $q->result_array();
+        $return['selected'] = 0;
+        $return['points'] = 0;
+        $sel = 'select lig_id, points from experience where dancer_id=' . $dancer_id
+            . ' and way_id=' . $way_id;
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        if (count($res) > 0) {
+            $return['selected'] = $res[0]['lig_id'];
+            $return['points'] = $res[0]['points'];
+        }
+        return $return;
+    }
+
+    public function saveDancerExp($data)
+    {
+        $sel = 'select id from experience where dancer_id=' . $data['dancer_id']
+            . ' and way_id=' . $data['way_id'];
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        if (count($res) > 0) {
+            $ins = 'update experience set lig_id=' . $data['lig_id']
+                . ', points=' . $data['points']
+                . ' where id=' . $res[0]['id'];
+        } else {
+            $ins = 'insert into experience (dancer_id, lig_id, points, way_id)'
+                . ' values (' . $data['dancer_id'] . ', ' . $data['lig_id'] . ', '. $data['points'] . ', '. $data['way_id'] . ')';
+        }
+        $this->db->query($ins);
+        return 0;
+    }
+
+    public function getYearPaySearch($text)
+    {
+        $sel='select u.last_name, u.first_name, u.father_name, d.id,'
+            . ' u.phone, u.email, c.title, d.pay'
+            . ' from users u, dancers d, trainers t, clubers c'
+            . ' where d.user_id=u.id and d.trainer_id=t.id and t.club_id=c.id and u.deleted_at is null'
+            . ' and u.last_name like "%' . $text . '%"'
+            . ' order by u.last_name';
+        //return $sel;
+        $q = $this->db->query($sel);
+        $res = $q->result_array();
+        $html='';
+        foreach ($res as $r){
+            if ($r['pay']==null) $r['pay']=0;
+            $html.='<tr>';
+            $html.='<td><input type="hidden" name="id[]" value='.$r['id'].'>';
+            $html.=$r['last_name'].' '.$r['first_name'].' '.$r['father_name'].'</td>';
+            $html.='<td>'.$r['email'].' '.$r['phone'].'</td>';
+            $html.='<td>'.$r['title'].'</td>';
+            $html.='<td><input type="number" name="year[]" value='.$r['pay'].' class="col-xs-5"></td>';
+            $html.='</tr>';
+        }
+        return $html;
     }
 }

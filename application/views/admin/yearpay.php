@@ -1,12 +1,18 @@
 <?php $this->load->view('header');?>
 <?php include_once 'menu.php';?>
-<h1 class="h3">Ежегодная оплата</h1>
+<h1 class="h3">Ежегодная оплата 2</h1>
 
 <div class="btn-group">
     <button class="btn btn-default" id="all_but">Все</button>
     <button class="btn btn-default" id="yes_but">Оплачен</button>
     <button class="btn btn-default" id="no_but">Нет оплаты</button>
     <button class="btn btn-success" id="save_but">Сохранить</button>
+</div>
+<div class="input-group">
+    <input type="text" placeholder="Фамилия..." class="form-control" id="search_text">
+    <div class="input-group-btn">
+        <button class="btn btn-default" id="search">Найти</button>
+    </div>
 </div>
 <form id="pay_form">
     <table class="table table-striped table-condensed" id="main_table">

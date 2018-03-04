@@ -39,6 +39,11 @@ class Ajax extends CI_Controller {
 		echo json_encode($this->CabinetModel->get_regions());
 	}
 
+	public function getWays()
+    {
+        echo json_encode($this->CabinetModel->getWays());
+    }
+
 	public function saveUser()
 	{
             $res = $this->AjaxModel->saveUser($_POST);
@@ -496,5 +501,28 @@ class Ajax extends CI_Controller {
 			echo $this->AjaxModel->deleteCity($_POST['id']);
 		}
 		return false;
+	}
+
+	public function getExperience()
+	{
+		$dancer_id = $_POST['dancer_id'];
+		$way_id = $_POST['way_id'];
+		echo json_encode($this->AjaxModel->getExperience($dancer_id, $way_id));
+	}
+
+	public function saveDancerExp()
+    {
+        $data = [
+            'dancer_id' => $_POST['dancer_id'],
+            'way_id'    => $_POST['way_id'],
+            'lig_id'    => $_POST['lig_id'],
+            'points'    => $_POST['points'],
+        ];
+		echo json_encode($this->AjaxModel->saveDancerExp($data));
+    }
+
+	public function SearchYearPays()
+	{
+		echo json_encode($this->AjaxModel->getYearPaySearch($_POST['text']));
 	}
 }

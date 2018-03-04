@@ -1,6 +1,7 @@
 (function($){$(function(){
 
 var regions;
+$('#dancer_but').hide();
 
 $.ajax({
 	url: baseUrl + 'ajax/getRegions',
@@ -74,6 +75,48 @@ function clubList(cityId, clubId = 0) {
 	});
 }
 
+function getWays() {
+	$.ajax({
+		url: baseUrl + 'ajax/getWays',
+		type:'POST',
+		success: function(data){
+			var ways = JSON.parse(data);
+			var html = '<option value="0">Выберите направление</option>';
+			for (var i = 0; i < ways.length; i++) {
+				html += '<option value="' + ways[i].id + '">' + ways[i].way + '</option>';
+			}
+			$('#dancer_way_id').html(html);
+			$('#dancer_lig_id').hide();
+			$('#dancer_lig_id').html('');
+			$('#dancer_points').hide();
+			$('#dancer_points').val(0);
+		}
+	});
+}
+
+function getExperience(wayId) {
+	$.ajax({
+		url: baseUrl + 'ajax/getExperience',
+		type:'POST',
+		data: 'way_id=' + wayId + '&dancer_id=' + $('#dancer_id').val(),
+		success: function(data) {
+			var exp = JSON.parse(data);
+			var html = '';
+			for (var i = 0; i < exp.ligs.length; i++) {
+				if (exp.ligs[i].id == exp.selected) {
+					html += '<option value="' + exp.ligs[i].id + '" selected>' + exp.ligs[i].name + '</option>';
+				} else {
+					html += '<option value="' + exp.ligs[i].id + '">' + exp.ligs[i].name + '</option>';
+				}
+			}
+			$('#dancer_lig_id').html(html);
+			$('#dancer_points').val(exp.points);
+			$('#dancer_lig_id').show();
+			$('#dancer_points').show();
+		}
+	});
+}
+
 $('#edit_block').hide();
 $('#edit_but').hide();
 $('#delete_but').hide();
@@ -99,7 +142,7 @@ $('#save_but').click(function(){
 			type:'POST',
 			data:form,
 			success: function(data){
-	
+
 			}
 		});
 	}
@@ -108,13 +151,12 @@ $('#save_but').click(function(){
 
 $('#save_trainer').click(function(){
 	var clubId = $('#club_id').val();
-	if (clubId > 0) {		
+	if (clubId > 0) {
 		$.ajax({
 			url: baseUrl + 'ajax/saveTrainerInfo',
 			type:'POST',
 			data:'trainer_id=' + $('#trainer_id').val() + '&club_id=' + clubId + '&user_id=' + $('#user_id').val(),
 			success: function(data){
-				console.log(data);
 				if (data == '0') {
 					var name = $('#trainer_name').text();
 					text = '<p class="alert alert-success alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Тренер ' + name + ' изменён</p>';
@@ -159,9 +201,9 @@ function user_click(){
     $('td.pointer').each(function(){
         $(this).click(function(){
                 var id=$(this).parent().find('td.hidden').text();
-                console.log('id=', id);
 				$('#delete_id').val(id);
                 $('#edit_block').hide();
+				$('#dancer_but').hide();
                 user_info(id);
         });
     });
@@ -177,8 +219,7 @@ function user_info(id){
 		success: function(data){
 			$('#edit_but').show();
 			$('#delete_but').show();
-			console.log(data);
-			
+
 			var user=JSON.parse(data);
 			$('#user_id').val(user.id);
 			$('#last_name').val(user.last_name);
@@ -257,6 +298,16 @@ function user_info(id){
 				citiesList(user.trainer_info.region_id, user.trainer_info.city_id);
 				clubList(user.trainer_info.city_id, user.trainer_info.club_id);
 			}
+			if (user.dancer_info > 0) {
+				$('#dancer_but').show();
+				$('#dancer_id').val(user.dancer_info);
+				$('#dancer_name').html(user.last_name + ' ' + user.first_name);
+				$('#dancer_lig_id').hide();
+				$('#dancer_lig_id').html('');
+				$('#dancer_points').hide();
+				$('#dancer_points').val(0);
+				getWays();
+			}
 		}
 	})
 }
@@ -267,7 +318,6 @@ $('#delete_confirm_but').click(function(){
 		type:'POST',
 		data:'id='+ $('#delete_id').val(),
 		success: function(data){
-			console.log(data);
 			var text = '';
 			if (data == '0') {
 				var name = $('#delete_name').text();
@@ -279,6 +329,41 @@ $('#delete_confirm_but').click(function(){
 			$('main').prepend(text);
 		}
 	});
+});
+
+$('#dancer_way_id').change(function() {
+	var wayId = $('#dancer_way_id').val();
+	if (wayId > 0) {
+		getExperience(wayId);
+	}
+});
+
+$('#save_dancer').click(function(){
+	var dancerId = $('#dancer_id').val();
+	var points = $('#dancer_points').val();
+	var wayId = $('#dancer_way_id').val();
+	var ligId = $('#dancer_lig_id').val();
+	if (ligId > 0) {
+		$.ajax({
+			url: baseUrl + 'ajax/saveDancerExp',
+			type:'POST',
+			data:'dancer_id=' + dancerId + '&points=' + points + '&way_id=' + wayId + '&lig_id=' + ligId,
+			success: function(data){
+				console.log(data);
+				if (data == '0') {
+					var name = $('#dancer_name').text();
+					text = '<p class="alert alert-success alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Опыт танцора ' + name + ' изменён</p>';
+				} else {
+					text = '<p class="alert alert-danger alert-dismissable" id="success"> <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>ОШИБКА:</strong> ' + data + '</p>';
+				}
+				$('#success').remove();
+				$('main').prepend(text);
+			}
+		});
+	} else {
+		return false;
+	}
+	return true;
 });
 
 })})(jQuery)

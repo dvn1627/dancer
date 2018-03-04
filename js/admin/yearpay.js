@@ -1,17 +1,14 @@
 (function($){$(function(){
 
 $('#all_but').click(function(){
-    console.log('all');
     show('all',1);
 });
 
 $('#yes_but').click(function(){
-    console.log('yes');
     show('yes',1);
 });
 
 $('#no_but').click(function(){
-    console.log('no');
     show('no',1);
 });
 
@@ -27,14 +24,11 @@ function show(type, page){
             var res=JSON.parse(data);
             $('#main_table tbody').html(res.list);
             $('#pagg').html(res.pagg);
-            //console.log('start');
             $('#next').click(function(){
-                //console.log('next');
                 show(type, page+1);
                 return false;
             });
             $('#prev').click(function(){
-                //console.log('prev');
                 show(type, page-1);
                 return false;
             });
@@ -47,7 +41,26 @@ $('#save_but').click(function(){
         type:'POST',
         data:$('#pay_form').serialize(),
         success: function(data){
+            console.log(data);
             show('all',4,1);
+        }
+    });
+});
+
+$('#search').click(function(){
+    var text = $('#search_text').val().trim();
+    if (text == '') {
+        return false;
+    }
+    $.ajax({
+        url: '../ajax/SearchYearPays',
+        type: 'POST',
+        data: 'text=' + text,
+        success: function(data) {
+            console.log(data);
+            var res=JSON.parse(data);
+            $('#main_table tbody').html(res);
+            $('#pagg').html('');
         }
     });
 });

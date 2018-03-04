@@ -303,7 +303,7 @@ class CabinetModel extends CI_Model{
 
     public function htmlTrainerDancers($trainer_id) {
         $q = $this->db->query('select u.first_name, u.last_name, u.phone, u.email, u.dancer,'
-                . ' d.id, d.birthdate, d.user_id'
+                . ' d.id, d.pay, d.birthdate, d.user_id'
                 . ' from users u, dancers d'
                 . ' where u.deleted_at is null and u.id=d.user_id and d.trainer_id='
                 . '(select id from trainers where user_id='.$trainer_id.')');
@@ -312,7 +312,12 @@ class CabinetModel extends CI_Model{
         {
             $html .= '<tr>';
             $html .= '<td class="hidden">'.$r->id.'</td>';
-            $html .= '<td>'.$r->last_name.' '.$r->first_name.'</td>';
+			if (is_null($r->pay)) {
+				$html .= '<td class="text-danger">';
+			} else {
+				$html .= '<td>';
+			}
+            $html .= $r->last_name.' '.$r->first_name.'</td>';
             $birth =  strtotime($r->birthdate);
             $ytime = time() - $birth;
             $year = ($ytime - $ytime % 31556926) / 31556926;

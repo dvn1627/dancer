@@ -49,6 +49,31 @@
 </div>
 <!-- end modal edit trainer info-->
 
+<!-- Modal edit trainer info-->
+<div id="dacerModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Опыт танцора</h4>
+      </div>
+      <div class="modal-body">
+        <h4 id="dancer_name"></h4>
+        <select id="dancer_way_id"></select>
+        <select id="dancer_lig_id"></select>
+        <input type="text" id="dancer_points">
+		<input type="hidden" id="dancer_id">
+      </div>
+      <div class="modal-footer">
+		<button type="button" class="btn btn-success" data-dismiss="modal" id="save_dancer">СОХРАНИТЬ</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">НЕТ</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- end modal edit trainer info-->
+
 <h1 class="h4 text-success">Администрирование пользователей</h1>
 	<?php $this->load->view('admin/menu');?>
 	<div class="row">
@@ -133,6 +158,8 @@
 		<div class="col-md-3">
 			<form id="user_form">
 				<input type="submit" id="edit_but" class='btn btn-warning' value="модерация">
+				<br><br>
+                <button type="button" id="dancer_but" class='btn btn-info' data-toggle="modal" data-target="#dacerModal">опыт танцора</button>
 				<br><br>
                 <button type="button" class="btn btn-info" data-toggle="modal" data-target="#trainerModal" id="trainer_but">Изменить клуб</button>
                 <br><br>
